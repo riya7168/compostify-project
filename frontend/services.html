@@ -35,7 +35,7 @@
                     </div>
                     <div>
                         <label class="block text-sm mb-1 text-slate-600">Location</label>
-                        <input type="text" id="filter-location" class="input-field" placeholder="e.g. New York">
+                        <input type="text" id="filter-location" class="input-field" placeholder="e.g. Delhi, Mumbai">
                     </div>
                     <div>
                         <label class="block text-sm mb-1 text-slate-600">Service Type</label>
@@ -56,7 +56,7 @@
                     <div>
                         <label class="block text-sm mb-1 flex justify-between text-slate-600">
                             Max Price 
-                            <span id="price-display" class="font-bold text-nature-600">$100</span>
+                            <span id="price-display" class="font-bold text-nature-600">₹100</span>
                         </label>
                         <input type="range" id="filter-max-price" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer" min="1" max="1000" value="100">
                     </div>
@@ -149,7 +149,7 @@
         // Price slider UI
         const maxPriceInput = document.getElementById('filter-max-price');
         maxPriceInput.addEventListener('input', (e) => {
-            document.getElementById('price-display').textContent = '$' + e.target.value;
+            document.getElementById('price-display').textContent = '₹' + e.target.value;
         });
 
         document.querySelectorAll('.close-modal').forEach(btn => {
@@ -218,7 +218,7 @@
                 card.innerHTML = `
                     <div class="flex justify-between items-start mb-4">
                         <span class="bg-nature-100 text-nature-700 text-xs font-bold px-2.5 py-1 rounded-full">${typeMap[s.serviceType] || s.serviceType}</span>
-                        <span class="text-lg font-bold text-slate-800">$${s.price}</span>
+                        <span class="text-lg font-bold text-slate-800">₹${s.price}</span>
                     </div>
                     <h3 class="text-xl font-bold text-slate-800 mb-1">${s.title}</h3>
                     <p class="text-xs text-slate-500 mb-2">by ${providerName}</p>
