@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Compostify</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style type="text/tailwindcss">
+        @layer components {
+            .glass { @apply bg-white/80 backdrop-blur-xl border border-white/30 shadow-2xl; }
+            .input-field { @apply w-full p-3.5 rounded-xl border border-gray-200 shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white/70 backdrop-blur-sm transition-all duration-300 outline-none; }
+            .btn-primary { @apply bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold py-3.5 px-6 rounded-xl transition-all duration-300 hover:shadow-lg hover:scale-105 active:scale-95 shadow-md flex justify-center items-center gap-2 w-full disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 relative overflow-hidden; }
+
+            .btn-primary .ripple {
+                position: absolute;
+                border-radius: 50%;
+                background: rgba(255, 255, 255, 0.5);
+                pointer-events: none;
+                animation: rippleAnimation 0.6s ease-out;
+            }
+
+            @keyframes rippleAnimation {
+                0% {
+                    transform: scale(0);
+                    opacity: 1;
+                }
+                100% {
+                    transform: scale(4);
+                    opacity: 0;
+                }
+            }
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            background: linear-gradient(135deg, #ecfdf5 0%, #f0fdf4 50%, #f8fafc 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* ==================== LAYOUT CONTAINER ==================== */
+        .layout-container {
+            display: flex;
+            width: 100%;
+            min-height: 100vh;
+        }
+
+        .left-side {
+            flex: 1;
+            min-width: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .right-side {
+            flex: 1;
+            min-width: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            position: relative;
+            overflow-y: auto;
+            max-height: 100vh;
+        }
+
+        /* ==================== PARTICLE SYSTEM ==================== */
+        .particles-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, rgba(16, 185, 129, 0.8), rgba(16, 185, 129, 0.1));
+            filter: blur(2px);
+        }
+
+        @keyframes float1 { 0% { transform: translateY(0) rotate(0deg); } 100% { transform: translateY(-100vh) rotate(360deg); } }
+        @keyframes float2 { 0% { transform: translateY(0) rotate(180deg); } 100% { transform: translateY(-100vh) rotate(540deg); } }
+        @keyframes float3 { 0% { transform: translateY(0) rotate(-90deg); } 100% { transform: translateY(-100vh) rotate(270deg); } }
+        @keyframes float4 { 0% { transform: translateY(100vh) rotate(45deg); } 100% { transform: translateY(0) rotate(405deg); } }
+
+        .particle:nth-child(1) { width: 40px; height: 40px; left: 10%; animation: float1 15s linear infinite; animation-delay: 0s; opacity: 0.15; }
+        .particle:nth-child(2) { width: 60px; height: 60px; left: 20%; animation: float2 18s linear infinite; animation-delay: 2s; opacity: 0.1; }
+        .particle:nth-child(3) { width: 30px; height: 30px; left: 30%; animation: float3 20s linear infinite; animation-delay: 4s; opacity: 0.12; }
+        .particle:nth-child(4) { width: 50px; height: 50px; left: 40%; animation: float4 22s linear infinite; animation-delay: 1s; opacity: 0.08; }
+        .particle:nth-child(5) { width: 35px; height: 35px; left: 50%; animation: float1 17s linear infinite; animation-delay: 3s; opacity: 0.14; }
+        .particle:nth-child(6) { width: 55px; height: 55px; left: 60%; animation: float2 19s linear infinite; animation-delay: 5s; opacity: 0.09; }
+        .particle:nth-child(7) { width: 25px; height: 25px; left: 70%; animation: float3 21s linear infinite; animation-delay: 2s; opacity: 0.11; }
+        .particle:nth-child(8) { width: 45px; height: 45px; left: 80%; animation: float4 23s linear infinite; animation-delay: 4s; opacity: 0.13; }
+        .particle:nth-child(9) { width: 38px; height: 38px; left: 15%; animation: float1 16s linear infinite; animation-delay: 1s; opacity: 0.1; }
+        .particle:nth-child(10) { width: 52px; height: 52px; left: 85%; animation: float2 20s linear infinite; animation-delay: 3s; opacity: 0.12; }
+
+        /* ==================== SVG DECORATIONS ==================== */
+        .svg-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .svg-element {
+            width: 300px;
+            height: 300px;
+            animation: floatDecorative 6s ease-in-out infinite;
+        }
+
+        @keyframes floatDecorative {
+            0%, 100% { transform: translateY(0px) scale(1); }
+            50% { transform: translateY(-20px) scale(1.05); }
+        }
+
+        .leaf-path {
+            stroke: url(#leafGradient);
+            stroke-width: 3;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            animation: drawLeaf 2s ease-in-out forwards;
+        }
+
+        @keyframes drawLeaf {
+            0% { stroke-dashoffset: 500; opacity: 0.3; }
+            50% { opacity: 0.7; }
+            100% { stroke-dashoffset: 0; opacity: 1; }
+        }
+
+        .wave-path {
+            stroke: rgba(16, 185, 129, 0.6);
+            stroke-width: 2;
+            fill: none;
+            stroke-linecap: round;
+            animation: drawWave 3s ease-in-out infinite;
+        }
+
+        @keyframes drawWave {
+            0%, 100% { stroke-dashoffset: 0; }
+            50% { stroke-dashoffset: -20; }
+        }
+
+        .circle-path {
+            stroke: rgba(16, 185, 129, 0.5);
+            stroke-width: 2;
+            fill: none;
+            animation: rotateCircle 8s linear infinite;
+        }
+
+        @keyframes rotateCircle {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .arrow-path {
+            stroke: rgba(16, 185, 129, 0.6);
+            stroke-width: 2;
+            fill: none;
+            animation: moveArrow 2s ease-in-out infinite;
+        }
+
+        @keyframes moveArrow {
+            0%, 100% { transform: translate(0, 0); opacity: 0.4; }
+            50% { transform: translate(5px, 5px); opacity: 1; }
+        }
+
+        .dot {
+            fill: rgba(16, 185, 129, 0.5);
+            animation: pulseDot 2s ease-in-out infinite;
+        }
+
+        @keyframes pulseDot {
+            0%, 100% { r: 3px; opacity: 0.4; }
+            50% { r: 5px; opacity: 1; }
+        }
+
+        /* ==================== CONTAINER & CARD EFFECTS ==================== */
+        .container-wrapper {
+            animation: fadeInUp 0.8s ease-out;
+            z-index: 10;
+            position: relative;
+            width: 100%;
+            max-width: 420px;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .glass {
+            transition: transform 0.1s ease-out, box-shadow 0.3s ease-out;
+            transform-style: preserve-3d;
+        }
+
+        .glass:hover {
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15), 0 0 40px rgba(16, 185, 129, 0.2);
+        }
+
+        /* ==================== LOGO & HEADING ==================== */
+        .logo-bounce {
+            animation: bounce 2s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* ==================== INPUT ANIMATIONS ==================== */
+        .input-wrapper {
+            animation: slideInLeft 0.6s ease-out backwards;
+        }
+
+        .input-wrapper:nth-child(1) { animation-delay: 0.1s; }
+        .input-wrapper:nth-child(2) { animation-delay: 0.2s; }
+        .input-wrapper:nth-child(3) { animation-delay: 0.3s; }
+        .input-wrapper:nth-child(4) { animation-delay: 0.4s; }
+        .input-wrapper:nth-child(5) { animation-delay: 0.5s; }
+        .input-wrapper:nth-child(6) { animation-delay: 0.6s; }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .input-field:focus {
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.4), inset 0 0 10px rgba(16, 185, 129, 0.1);
+        }
+
+        /* ==================== STRENGTH BAR ==================== */
+        .strength-bar {
+            height: 6px;
+            border-radius: 9999px;
+            transition: width 0.3s ease, background-color 0.3s ease;
+        }
+
+        /* ==================== SUCCESS ANIMATION ==================== */
+        .success-checkmark {
+            animation: scaleIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes scaleIn {
+            0% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        /* ==================== RESPONSIVE DESIGN ==================== */
+        @media (max-width: 768px) {
+            .layout-container {
+                flex-direction: column;
+            }
+
+            .left-side {
+                min-width: 100%;
+                min-height: 200px;
+                padding: 30px 20px;
+            }
+
+            .right-side {
+                min-width: 100%;
+                max-height: none;
+                padding: 30px 20px;
+            }
+
+            .svg-element {
+                width: 200px;
+                height: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- PARTICLE SYSTEM -->
+    <div class="particles-container">
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+    </div>
+
+    <!-- MAIN LAYOUT -->
+    <div class="layout-container">
+        <!-- LEFT SIDE: DECORATIVE SVG -->
+        <div class="left-side">
+            <div class="svg-container">
+                <svg class="svg-element" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="leafGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:rgba(16,185,129,1);stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:rgba(16,185,129,0.5);stop-opacity:1" />
+                        </linearGradient>
+                        <linearGradient id="waveGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:rgba(16,185,129,0.8);stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:rgba(16,185,129,0.3);stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+
+                    <!-- Leaf 1 -->
+                    <g transform="translate(80, 60)">
+                        <path class="leaf-path" d="M 0 0 Q 15 -20 20 -40 Q 15 -30 10 -20 Q 5 -10 0 0" stroke-dasharray="500"/>
+                    </g>
+
+                    <!-- Leaf 2 -->
+                    <g transform="translate(200, 80)">
+                        <path class="leaf-path" d="M 0 0 Q -15 -20 -20 -40 Q -15 -30 -10 -20 Q -5 -10 0 0" stroke-dasharray="500"/>
+                    </g>
+
+                    <!-- Organic Wave -->
+                    <g transform="translate(0, 120)">
+                        <path class="wave-path" d="M 20 0 Q 50 -20 80 0 T 140 0 T 200 0 T 260 0" stroke-dasharray="20" stroke-dashoffset="0"/>
+                    </g>
+
+                    <!-- Compost Cycle Circle with Arrows -->
+                    <g transform="translate(150, 180)">
+                        <circle class="circle-path" cx="0" cy="0" r="45" transform="translate(0,0)"/>
+
+                        <!-- Arrow 1 -->
+                        <g class="arrow-path" transform="rotate(0)">
+                            <line x1="40" y1="0" x2="50" y2="0"/>
+                            <polygon points="50,0 45,3 47,0 45,-3" fill="rgba(16,185,129,0.6)"/>
+                        </g>
+
+                        <!-- Arrow 2 -->
+                        <g class="arrow-path" transform="rotate(120)">
+                            <line x1="40" y1="0" x2="50" y2="0"/>
+                            <polygon points="50,0 45,3 47,0 45,-3" fill="rgba(16,185,129,0.6)"/>
+                        </g>
+
+                        <!-- Arrow 3 -->
+                        <g class="arrow-path" transform="rotate(240)">
+                            <line x1="40" y1="0" x2="50" y2="0"/>
+                            <polygon points="50,0 45,3 47,0 45,-3" fill="rgba(16,185,129,0.6)"/>
+                        </g>
+
+                        <!-- Center dots -->
+                        <circle class="dot" cx="0" cy="0" r="3" opacity="0.5"/>
+                        <circle class="dot" cx="-30" cy="20" r="3" opacity="0.5"/>
+                        <circle class="dot" cx="30" cy="20" r="3" opacity="0.5"/>
+                    </g>
+
+                    <!-- Decorative dots -->
+                    <circle class="dot" cx="50" cy="250" r="4" opacity="0.4"/>
+                    <circle class="dot" cx="250" cy="260" r="3" opacity="0.3"/>
+                    <circle class="dot" cx="100" cy="280" r="3" opacity="0.35"/>
+                </svg>
+            </div>
+        </div>
+
+        <!-- RIGHT SIDE: REGISTRATION FORM -->
+        <div class="right-side">
+            <div class="glass w-full p-8 rounded-3xl container-wrapper relative z-10">
+                <div class="text-center mb-8">
+                    <a href="index.html" class="inline-block text-5xl mb-4 logo-bounce hover:scale-110 transition-transform">🌱</a>
+                    <h1 class="text-4xl font-bold bg-gradient-to-r from-green-600 to-green-700 bg-clip-text text-transparent mb-2">Create an Account</h1>
+                    <p class="text-slate-500 text-sm">Join the green revolution today.</p>
+                </div>
+
+                <form id="register-form" class="space-y-4" novalidate>
+                    <!-- Full Name -->
+                    <div class="input-wrapper">
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">👤 Full Name</label>
+                        <input type="text" id="name" class="input-field input-focus-glow" placeholder="John Doe" required minlength="2">
+                        <p class="text-xs text-red-500 mt-1 hidden" id="name-error">✗ Please enter your full name.</p>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="input-wrapper">
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">📧 Email</label>
+                        <input type="email" id="email" class="input-field input-focus-glow" placeholder="john@example.com" required>
+                        <p class="text-xs text-red-500 mt-1 hidden" id="email-error">✗ Please enter a valid email address.</p>
+                    </div>
+
+                    <!-- Password + Strength Meter -->
+                    <div class="input-wrapper">
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">🔒 Password</label>
+                        <div class="relative">
+                            <input type="password" id="password" class="input-field input-focus-glow pr-10" placeholder="••••••••" required minlength="6">
+                            <button type="button" id="toggle-password" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-lg transition-colors" title="Show/hide password">👁</button>
+                        </div>
+                        <!-- Strength bar -->
+                        <div class="mt-2 space-y-1">
+                            <div class="w-full bg-slate-200 rounded-full h-2">
+                                <div id="strength-bar" class="strength-bar bg-slate-200" style="width: 0%"></div>
+                            </div>
+                            <p id="strength-label" class="text-xs text-slate-400 font-medium"></p>
+                        </div>
+                        <p class="text-xs text-red-500 mt-1 hidden" id="password-error">✗ Password must be at least 6 characters.</p>
+                    </div>
+
+                    <!-- Confirm Password -->
+                    <div class="input-wrapper">
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">✓ Confirm Password</label>
+                        <input type="password" id="confirm-password" class="input-field input-focus-glow" placeholder="••••••••" required>
+                        <p class="text-xs text-red-500 mt-1 hidden" id="confirm-error">✗ Passwords do not match.</p>
+                    </div>
+
+                    <!-- Role -->
+                    <div class="input-wrapper">
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">🎯 I am a...</label>
+                        <select id="role" class="input-field input-focus-glow bg-white">
+                            <option value="user">🌿 Eco-conscious Resident</option>
+                            <option value="expert">👨‍🌾 Composting Expert / Provider</option>
+                        </select>
+                        <p id="expert-note" class="text-xs text-amber-600 mt-2 hidden font-medium animate-pulse">
+                            ⚠️ Expert accounts require admin approval before services become visible.
+                        </p>
+                    </div>
+
+                    <!-- Terms -->
+                    <div class="input-wrapper flex items-start gap-3">
+                        <input type="checkbox" id="terms" class="mt-1 w-4 h-4 rounded border-gray-300 text-green-600 focus:ring-green-500 cursor-pointer" required>
+                        <label for="terms" class="text-sm text-slate-600 cursor-pointer">
+                            I agree to the <a href="#" class="text-green-600 font-semibold hover:underline">Terms of Service</a> and
+                            <a href="#" class="text-green-600 font-semibold hover:underline">Privacy Policy</a>
+                        </label>
+                    </div>
+                    <p class="text-xs text-red-500 -mt-2 hidden" id="terms-error">✗ You must accept the terms to continue.</p>
+
+                    <button type="submit" id="submit-btn" class="btn-primary mt-6">
+                        Sign Up 🚀
+                    </button>
+                </form>
+
+                <p class="mt-6 text-center text-sm text-slate-600">
+                    Already have an account? <a href="login.html" class="text-green-600 font-semibold hover:text-green-700 hover:underline transition-colors">Log in</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script>
+        // Show expert note when expert role is selected
+        document.getElementById('role').addEventListener('change', (e) => {
+            const note = document.getElementById('expert-note');
+            note.classList.toggle('hidden', e.target.value !== 'expert');
+        });
+
+        // Toggle password visibility
+        document.getElementById('toggle-password').addEventListener('click', () => {
+            const input = document.getElementById('password');
+            const btn = document.getElementById('toggle-password');
+            if (input.type === 'password') {
+                input.type = 'text';
+                btn.textContent = '🙈';
+            } else {
+                input.type = 'password';
+                btn.textContent = '👁';
+            }
+        });
+
+        // Password strength meter
+        document.getElementById('password').addEventListener('input', (e) => {
+            const val = e.target.value;
+            const bar = document.getElementById('strength-bar');
+            const label = document.getElementById('strength-label');
+
+            let score = 0;
+            if (val.length >= 6) score++;
+            if (val.length >= 10) score++;
+            if (/[A-Z]/.test(val)) score++;
+            if (/[0-9]/.test(val)) score++;
+            if (/[^A-Za-z0-9]/.test(val)) score++;
+
+            const levels = [
+                { pct: '0%',   color: 'bg-slate-200', text: '' },
+                { pct: '20%',  color: 'bg-red-400',   text: '🔴 Very Weak' },
+                { pct: '40%',  color: 'bg-orange-400', text: '🟠 Weak' },
+                { pct: '60%',  color: 'bg-yellow-400', text: '🟡 Fair' },
+                { pct: '80%',  color: 'bg-blue-400',  text: '🔵 Strong' },
+                { pct: '100%', color: 'bg-green-500', text: '🟢 Very Strong' },
+            ];
+            const l = levels[val.length === 0 ? 0 : score];
+            bar.style.width = l.pct;
+            bar.className = `strength-bar ${l.color}`;
+            label.textContent = l.text;
+        });
+
+        // Live confirm password check
+        document.getElementById('confirm-password').addEventListener('input', () => {
+            const pw = document.getElementById('password').value;
+            const cpw = document.getElementById('confirm-password').value;
+            const err = document.getElementById('confirm-error');
+            if (cpw && pw !== cpw) {
+                err.classList.remove('hidden');
+            } else {
+                err.classList.add('hidden');
+            }
+        });
+
+        // Form submission
+        document.getElementById('register-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('name').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+            const role = document.getElementById('role').value;
+            const terms = document.getElementById('terms').checked;
+            const btn = document.getElementById('submit-btn');
+
+            // Client-side validation
+            let valid = true;
+
+            const nameErr = document.getElementById('name-error');
+            if (name.length < 2) { nameErr.classList.remove('hidden'); valid = false; }
+            else nameErr.classList.add('hidden');
+
+            const emailErr = document.getElementById('email-error');
+            if (!/^\S+@\S+\.\S+$/.test(email)) { emailErr.classList.remove('hidden'); valid = false; }
+            else emailErr.classList.add('hidden');
+
+            const pwErr = document.getElementById('password-error');
+            if (password.length < 6) { pwErr.classList.remove('hidden'); valid = false; }
+            else pwErr.classList.add('hidden');
+
+            const cErr = document.getElementById('confirm-error');
+            if (password !== confirmPassword) { cErr.classList.remove('hidden'); valid = false; }
+            else cErr.classList.add('hidden');
+
+            const tErr = document.getElementById('terms-error');
+            if (!terms) { tErr.classList.remove('hidden'); valid = false; }
+            else tErr.classList.add('hidden');
+
+            if (!valid) return;
+
+            const origText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = 'Creating account... ⏳';
+
+            try {
+                const data = await api.auth.register({ name, email, password, role });
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('user', JSON.stringify(data.user));
+
+                if (role === 'expert') {
+                    btn.innerHTML = '<span class="success-checkmark">✅</span> Account created!';
+                    // Brief message before redirect
+                    const msg = document.createElement('div');
+                    msg.className = 'mt-4 text-center text-sm text-amber-600 font-medium animate-pulse';
+                    msg.textContent = 'Your expert account is pending admin verification. Redirecting…';
+                    btn.after(msg);
+                } else {
+                    btn.innerHTML = '<span class="success-checkmark">✅</span> Welcome aboard!';
+                }
+
+                setTimeout(() => { window.location.href = 'dashboard.html'; }, 1500);
+            } catch (err) {
+                if (window.ui) ui.showToast(err.message, 'error');
+                else alert(err.message);
+                btn.disabled = false;
+                btn.innerHTML = origText;
+            }
+        });
+
+        // ==================== 3D CARD TILT EFFECT ====================
+        function initCard3DTilt() {
+            const card = document.querySelector('.glass');
+            if (!card) return;
+
+            let isMouseOver = false;
+
+            card.addEventListener('mouseenter', () => {
+                isMouseOver = true;
+            });
+
+            card.addEventListener('mouseleave', () => {
+                isMouseOver = false;
+                card.style.transform = 'perspective(1200px) rotateX(0) rotateY(0) translateZ(0)';
+                card.style.boxShadow = '0 20px 40px rgba(0, 0, 0, 0.1), 0 0 40px rgba(16, 185, 129, 0.15)';
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (!isMouseOver) return;
+
+                const rect = card.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+
+                const distX = (e.clientX - centerX) / (rect.width / 2);
+                const distY = (e.clientY - centerY) / (rect.height / 2);
+
+                const rotateX = -distY * 5;  // Max 5 degrees
+                const rotateY = distX * 5;   // Max 5 degrees
+                const translateZ = 20;
+
+                card.style.transform = `perspective(1200px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(${translateZ}px)`;
+                card.style.boxShadow = `0 25px 50px rgba(0, 0, 0, 0.15), 0 0 60px rgba(16, 185, 129, 0.3)`;
+            });
+        }
+
+        // ==================== BUTTON RIPPLE EFFECT ====================
+        function addRippleEffect(button) {
+            button.addEventListener('click', function(e) {
+                const ripple = document.createElement('span');
+                const rect = this.getBoundingClientRect();
+                const size = Math.max(rect.width, rect.height);
+                const x = e.clientX - rect.left - size / 2;
+                const y = e.clientY - rect.top - size / 2;
+
+                ripple.style.width = ripple.style.height = size + 'px';
+                ripple.style.left = x + 'px';
+                ripple.style.top = y + 'px';
+                ripple.classList.add('ripple');
+
+                // Remove any existing ripple
+                const existing = this.querySelector('.ripple');
+                if (existing) existing.remove();
+
+                this.appendChild(ripple);
+
+                setTimeout(() => ripple.remove(), 600);
+            });
+        }
+
+        // Add ripple to all primary buttons
+        document.querySelectorAll('.btn-primary').forEach(btn => addRippleEffect(btn));
+
+        // Init card 3D tilt on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            initCard3DTilt();
+        });
+
+        // Also init on initial load
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initCard3DTilt);
+        } else {
+            initCard3DTilt();
+        }
+    </script>
+    <script src="js/components.js"></script>
+</body>
+</html>

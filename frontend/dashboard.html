@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Compostify</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        nature: { 50: '#ecfdf5', 100: '#d1fae5', 200: '#a7f3d0', 500: '#10b981', 600: '#059669', 700: '#047857' }
+                    },
+                    animation: {
+                        'float': 'float 3s ease-in-out infinite',
+                        'bounce-slow': 'bounce-slow 2s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        'float': {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        },
+                        'bounce-slow': {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-5px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer components {
+            .glass { @apply bg-white/70 backdrop-blur-md border border-white/20 shadow-lg; }
+            .glass-dark { @apply bg-white/90 backdrop-blur-md border border-white/30 shadow-xl; }
+            .btn-primary { @apply bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold py-2 px-4 rounded-lg transition-all hover:shadow-lg hover:scale-105 shadow-md; }
+            .btn-secondary { @apply bg-white border-2 border-nature-600 text-nature-600 hover:bg-nature-50 font-semibold py-2 px-4 rounded-lg transition-all hover:scale-105; }
+            .btn-danger { @apply bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-lg transition-transform hover:scale-105 shadow-sm; }
+            .stat-card { @apply glass-dark p-6 rounded-2xl backdrop-blur-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105; }
+            .activity-item { @apply glass p-4 rounded-xl border-l-4 border-nature-500 hover:shadow-lg transition-all; }
+        }
+        body { @apply bg-slate-50 text-slate-800 antialiased; background: linear-gradient(135deg, #ecfdf5 0%, #f0fdf4 50%, #f8fafc 100%); min-height: 100vh; display: flex; flex-direction: column; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- Navigation -->
+    <div id="navbar-root"></div>
+
+    <!-- Welcome Banner -->
+    <div id="welcome-banner" class="bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 text-white">
+        <div class="max-w-7xl mx-auto px-4 py-6 flex items-center justify-between">
+            <div>
+                <h2 id="welcome-title" class="text-3xl font-bold">Welcome to Compostify! 🌱</h2>
+                <p id="welcome-subtitle" class="text-green-50 mt-1 text-sm">Let's make composting easy and impactful</p>
+            </div>
+            <button id="close-banner" class="text-white hover:bg-white/20 p-2 rounded-lg transition">✕</button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 py-8 w-full space-y-8">
+
+        <!-- Quick Stats Section -->
+        <div>
+            <h3 class="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
+                <span>📊</span> Your Impact
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <!-- Total Bookings -->
+                <div class="stat-card">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-slate-500 text-sm font-medium">Active Bookings</p>
+                            <p id="total-bookings" class="text-3xl font-bold text-nature-600 mt-2">0</p>
+                            <p class="text-xs text-slate-400 mt-1">Services active</p>
+                        </div>
+                        <span class="text-3xl">📅</span>
+                    </div>
+                </div>
+
+                <!-- Eco Points -->
+                <div class="stat-card">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-slate-500 text-sm font-medium">Eco-Points Earned</p>
+                            <p id="eco-points" class="text-3xl font-bold text-green-600 mt-2">0</p>
+                            <p class="text-xs text-slate-400 mt-1">Keep contributing!</p>
+                        </div>
+                        <span class="text-3xl">🏆</span>
+                    </div>
+                </div>
+
+                <!-- Waste Composted -->
+                <div class="stat-card">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-slate-500 text-sm font-medium">Waste Composted</p>
+                            <p id="waste-composted" class="text-3xl font-bold text-emerald-600 mt-2">0 kg</p>
+                            <p class="text-xs text-slate-400 mt-1">This month</p>
+                        </div>
+                        <span class="text-3xl">♻️</span>
+                    </div>
+                </div>
+
+                <!-- Member Since -->
+                <div class="stat-card">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-slate-500 text-sm font-medium">Member Since</p>
+                            <p id="member-since" class="text-lg font-bold text-teal-600 mt-2">Today</p>
+                            <p class="text-xs text-slate-400 mt-1">Welcome aboard!</p>
+                        </div>
+                        <span class="text-3xl">🎉</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Onboarding Guide (for new users) -->
+        <div id="onboarding-section" class="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 p-6 rounded-2xl">
+            <div class="flex items-start justify-between mb-4">
+                <div>
+                    <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                        <span>🚀</span> Get Started with Composting
+                    </h3>
+                    <p class="text-slate-600 text-sm mt-1">Follow these steps to maximize your impact</p>
+                </div>
+                <button id="close-onboarding" class="text-slate-400 hover:text-slate-600 text-2xl">✕</button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <!-- Step 1 -->
+                <div class="bg-white p-4 rounded-xl border-l-4 border-blue-500">
+                    <div class="flex items-center gap-3 mb-2">
+                        <span class="bg-blue-500 text-white font-bold w-6 h-6 rounded-full flex items-center justify-center text-xs">1</span>
+                        <h4 class="font-bold text-slate-800">Explore Services</h4>
+                    </div>
+                    <p class="text-sm text-slate-600">Browse composting services, experts, and resources available in your area.</p>
+                    <a href="services.html" class="text-blue-600 hover:underline text-xs font-medium mt-2 inline-block">View Services →</a>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="bg-white p-4 rounded-xl border-l-4 border-indigo-500">
+                    <div class="flex items-center gap-3 mb-2">
+                        <span class="bg-indigo-500 text-white font-bold w-6 h-6 rounded-full flex items-center justify-center text-xs">2</span>
+                        <h4 class="font-bold text-slate-800">Book a Service</h4>
+                    </div>
+                    <p class="text-sm text-slate-600">Schedule pickups, consultations, or services from verified composting experts.</p>
+                    <p class="text-xs text-slate-400 mt-2">✓ Your bookings will appear in the section below</p>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="bg-white p-4 rounded-xl border-l-4 border-purple-500">
+                    <div class="flex items-center gap-3 mb-2">
+                        <span class="bg-purple-500 text-white font-bold w-6 h-6 rounded-full flex items-center justify-center text-xs">3</span>
+                        <h4 class="font-bold text-slate-800">Earn Rewards</h4>
+                    </div>
+                    <p class="text-sm text-slate-600">Earn eco-points with every booking and composting activity. Unlock badges!</p>
+                    <p class="text-xs text-slate-400 mt-2">🏅 Share your impact with community</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- User Role Specific Section -->
+        <div id="role-specific-section"></div>
+
+        <!-- Quick Actions -->
+        <div>
+            <h3 class="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
+                <span>⚡</span> Quick Actions
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <a href="services.html" class="glass-dark p-4 rounded-xl hover:shadow-xl transition-all text-center">
+                    <p class="text-2xl mb-2">🔍</p>
+                    <p class="font-bold text-slate-800">Browse Services</p>
+                    <p class="text-xs text-slate-500 mt-1">Find experts near you</p>
+                </a>
+                <a href="education.html" class="glass-dark p-4 rounded-xl hover:shadow-xl transition-all text-center">
+                    <p class="text-2xl mb-2">📚</p>
+                    <p class="font-bold text-slate-800">Learn More</p>
+                    <p class="text-xs text-slate-500 mt-1">Composting tips & guides</p>
+                </a>
+                <a href="#" class="glass-dark p-4 rounded-xl hover:shadow-xl transition-all text-center">
+                    <p class="text-2xl mb-2">👥</p>
+                    <p class="font-bold text-slate-800">Community</p>
+                    <p class="text-xs text-slate-500 mt-1">Connect with others</p>
+                </a>
+            </div>
+        </div>
+
+        <!-- Active Bookings Section -->
+        <div>
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                    <span>📋</span> Your Bookings
+                </h3>
+                <span id="booking-badge" class="bg-nature-100 text-nature-700 px-3 py-1 rounded-full text-xs font-bold">0 Active</span>
+            </div>
+
+            <div id="bookings-list" class="space-y-4">
+                <div class="glass p-8 rounded-2xl text-center">
+                    <p class="text-5xl mb-2">📭</p>
+                    <p class="text-slate-500 font-medium">No active bookings yet</p>
+                    <p class="text-sm text-slate-400 mt-1">Browse services to create your first booking!</p>
+                    <a href="services.html" class="btn-primary mt-4 inline-block">Explore Services</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Activity Timeline -->
+        <div id="activity-section">
+            <h3 class="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
+                <span>📈</span> Recent Activity
+            </h3>
+            <div id="activity-list" class="space-y-3">
+                <div class="activity-item">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="font-bold text-slate-800">Welcome to Compostify!</p>
+                            <p class="text-sm text-slate-500">Account created successfully</p>
+                        </div>
+                        <span class="text-sm bg-nature-100 text-nature-700 px-3 py-1 rounded-full">Just now</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script src="js/components.js"></script>
+    <script src="js/api.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            ui.renderNavbar('dashboard');
+
+            const userStr = localStorage.getItem('user');
+            if (!userStr) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const user = JSON.parse(userStr);
+            const createdAt = new Date(user.createdAt || new Date());
+            const today = new Date();
+
+            // ==================== WELCOME BANNER ====================
+            const welcomeTitle = document.getElementById('welcome-title');
+            const welcomeSubtitle = document.getElementById('welcome-subtitle');
+
+            if (user.role === 'expert') {
+                welcomeTitle.textContent = `Welcome, Composting Expert ${user.name}! 🌿`;
+                welcomeSubtitle.textContent = 'Share your expertise and help the community compost';
+            } else if (user.role === 'admin') {
+                welcomeTitle.textContent = `Welcome, Admin ${user.name}! 👨‍💼`;
+                welcomeSubtitle.textContent = 'Manage the platform and support the community';
+            } else {
+                welcomeTitle.textContent = `Welcome to Compostify, ${user.name.split(' ')[0]}! 🌱`;
+                welcomeSubtitle.textContent = `Let's make composting easy and impactful together`;
+            }
+
+            // Close banner
+            document.getElementById('close-banner').addEventListener('click', () => {
+                document.getElementById('welcome-banner').classList.add('hidden');
+            });
+
+            // Close onboarding
+            document.getElementById('close-onboarding').addEventListener('click', () => {
+                document.getElementById('onboarding-section').classList.add('hidden');
+                localStorage.setItem('onboarding-dismissed', 'true');
+            });
+
+            // Dismiss onboarding if already seen
+            if (localStorage.getItem('onboarding-dismissed')) {
+                document.getElementById('onboarding-section').classList.add('hidden');
+            }
+
+            // ==================== UPDATE STATS ====================
+            document.getElementById('member-since').textContent = createdAt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            document.getElementById('eco-points').textContent = '10'; // Starting points for new user
+            document.getElementById('waste-composted').textContent = '0 kg';
+
+            // ==================== ROLE SPECIFIC CONTENT ====================
+            const roleSection = document.getElementById('role-specific-section');
+            if (user.role === 'expert') {
+                roleSection.innerHTML = `
+                    <div class="bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-200 p-6 rounded-2xl">
+                        <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2 mb-4">
+                            <span>🎯</span> Expert Dashboard
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="glass p-4 rounded-xl">
+                                <p class="text-sm text-slate-600 mb-2">Create Your Service</p>
+                                <p class="text-2xl font-bold text-amber-600">Ready to help?</p>
+                                <button id="add-service-quick" class="btn-primary w-full mt-3">+ Add Your First Service</button>
+                            </div>
+                            <div class="glass p-4 rounded-xl">
+                                <p class="text-sm text-slate-600 mb-2">Verification Status</p>
+                                <p class="text-2xl font-bold text-amber-600">${user.isVerified ? '✅ Verified' : '⏳ Pending'}</p>
+                                <p class="text-xs text-slate-500 mt-2">${user.isVerified ? 'Your profile is live!' : 'Admin is reviewing your profile'}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                // Add service button handler
+                document.getElementById('add-service-quick')?.addEventListener('click', () => {
+                    const form = document.createElement('div');
+                    form.className = 'glass-dark p-6 rounded-2xl fixed inset-0 z-50 overflow-auto bg-black/50 flex items-center justify-center';
+                    form.innerHTML = `
+                        <div class="bg-white rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl">
+                            <h2 class="text-2xl font-bold mb-4">Create a Service</h2>
+                            <form id="quick-add-form" class="space-y-3">
+                                <input type="text" placeholder="Service Title" id="quick-title" class="w-full p-3 border rounded-lg" required>
+                                <select id="quick-type" class="w-full p-3 border rounded-lg">
+                                    <option value="home_composting">🏡 Home Composting Setup</option>
+                                    <option value="pickup">🚚 Compost Pickup</option>
+                                    <option value="consultation">💬 Expert Consultation</option>
+                                </select>
+                                <input type="text" placeholder="Location" id="quick-location" class="w-full p-3 border rounded-lg" required>
+                                <input type="number" placeholder="Price ($)" id="quick-price" class="w-full p-3 border rounded-lg" required>
+                                <textarea placeholder="Description" id="quick-desc" rows="3" class="w-full p-3 border rounded-lg"></textarea>
+                                <div class="flex gap-2">
+                                    <button type="submit" class="btn-primary flex-1">Create</button>
+                                    <button type="button" class="btn-secondary flex-1" onclick="this.closest('.fixed').remove()">Cancel</button>
+                                </div>
+                            </form>
+                        </div>
+                    `;
+                    document.body.appendChild(form);
+
+                    document.getElementById('quick-add-form').addEventListener('submit', async (e) => {
+                        e.preventDefault();
+                        try {
+                            await api.services.add({
+                                title: document.getElementById('quick-title').value,
+                                serviceType: document.getElementById('quick-type').value,
+                                location: document.getElementById('quick-location').value,
+                                price: document.getElementById('quick-price').value,
+                                description: document.getElementById('quick-desc').value
+                            });
+                            ui.showToast('Service created! 🎉', 'success');
+                            form.remove();
+                        } catch (err) {
+                            ui.showToast(err.message, 'error');
+                        }
+                    });
+                });
+            }
+
+            // ==================== LOAD BOOKINGS ====================
+            async function loadBookings() {
+                try {
+                    const bookings = await api.bookings.getAll();
+                    const container = document.getElementById('bookings-list');
+                    const badge = document.getElementById('booking-badge');
+
+                    badge.textContent = `${bookings.length} ${bookings.length === 1 ? 'Active' : 'Active'}`;
+
+                    if (bookings.length === 0) {
+                        container.innerHTML = `
+                            <div class="glass p-8 rounded-2xl text-center">
+                                <p class="text-5xl mb-2">📭</p>
+                                <p class="text-slate-500 font-medium">No active bookings yet</p>
+                                <p class="text-sm text-slate-400 mt-1">Browse services to create your first booking!</p>
+                                <a href="services.html" class="btn-primary mt-4 inline-block">Explore Services</a>
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    container.innerHTML = '';
+                    bookings.forEach(b => {
+                        const date = new Date(b.scheduledDate).toLocaleDateString();
+                        const card = document.createElement('div');
+                        card.className = 'activity-item border-l-4 transition-all hover:shadow-xl';
+
+                        let statusColor = 'bg-amber-100 text-amber-700';
+                        let statusEmoji = '⏳';
+                        if (b.status === 'accepted') { statusColor = 'bg-green-100 text-green-700'; statusEmoji = '✅'; }
+                        if (b.status === 'completed') { statusColor = 'bg-blue-100 text-blue-700'; statusEmoji = '🎉'; }
+                        if (b.status === 'cancelled') { statusColor = 'bg-red-100 text-red-700'; statusEmoji = '❌'; }
+
+                        card.innerHTML = `
+                            <div class="flex justify-between items-start">
+                                <div class="flex-1">
+                                    <h4 class="font-bold text-slate-800">${b.service?.title || 'Service'}</h4>
+                                    <p class="text-sm text-slate-600 mt-1">📅 ${date}</p>
+                                    <p class="text-xs text-slate-500 mt-1">ID: ...${b._id.slice(-4)}</p>
+                                </div>
+                                <span class="${statusColor} px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap ml-4">${statusEmoji} ${b.status}</span>
+                            </div>
+                        `;
+                        container.appendChild(card);
+                    });
+                } catch (err) {
+                    console.error('Error loading bookings:', err);
+                }
+            }
+
+            loadBookings();
+
+            // ==================== ACTIVITY TIMELINE ====================
+            const activityList = document.getElementById('activity-list');
+            activityList.innerHTML = `
+                <div class="activity-item">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="font-bold text-slate-800">🎉 Welcome to Compostify!</p>
+                            <p class="text-sm text-slate-500">Account created successfully</p>
+                        </div>
+                        <span class="text-sm bg-nature-100 text-nature-700 px-3 py-1 rounded-full">Just now</span>
+                    </div>
+                </div>
+                <div class="activity-item">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="font-bold text-slate-800">🏅 +10 Eco-Points</p>
+                            <p class="text-sm text-slate-500">Welcome bonus for joining the community</p>
+                        </div>
+                        <span class="text-sm bg-green-100 text-green-700 px-3 py-1 rounded-full">Just now</span>
+                    </div>
+                </div>
+                ${user.role === 'expert' ? `
+                <div class="activity-item">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="font-bold text-slate-800">⏳ Waiting for Verification</p>
+                            <p class="text-sm text-slate-500">Admin is reviewing your expert profile</p>
+                        </div>
+                        <span class="text-sm bg-blue-100 text-blue-700 px-3 py-1 rounded-full">Pending</span>
+                    </div>
+                </div>
+                ` : ''}
+            `;
+        });
+    </script>
+    <div id="footer-root"></div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => { ui.renderFooter(); });
+    </script>
+</body>
+</html>

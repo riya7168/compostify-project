@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compostify ♻️ - Waste Management & Composting</title>
+    <!-- Use Tailwind CDN if local output is missing, but prefer local build -->
+    <link href="/dist/output.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        nature: {
+                            50: '#ecfdf5',
+                            100: '#d1fae5',
+                            200: '#a7f3d0',
+                            300: '#6ee7b7',
+                            400: '#34d399',
+                            500: '#10b981',
+                            600: '#059669',
+                            700: '#047857',
+                            800: '#065f46',
+                            900: '#064e3b',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer components {
+            .glass { @apply bg-white/70 backdrop-blur-md border border-white/20 shadow-lg; }
+            .btn-primary { @apply bg-nature-600 hover:bg-nature-700 text-white font-semibold py-3 px-6 rounded-lg transition-transform hover:scale-105 shadow-md flex justify-center items-center gap-2; }
+            .btn-secondary { @apply bg-white text-nature-700 border-2 border-nature-600 font-semibold py-3 px-6 rounded-lg transition-transform hover:scale-105 shadow-sm hover:bg-nature-50; }
+        }
+        body { @apply bg-slate-50 text-slate-800 antialiased selection:bg-nature-200; background-image: radial-gradient(circle at 100% 100%, #ecfdf5 0%, #f8fafc 100%); background-attachment: fixed; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- Navigation -->
+    <div id="navbar-root"></div>
+
+    <!-- Hero Section -->
+    <main class="flex-grow">
+        <section class="max-w-7xl mx-auto px-4 py-20 lg:py-32 flex flex-col lg:flex-row items-center gap-12">
+            <div class="flex-1 space-y-8 animate-fade-in-up">
+                <div class="inline-block bg-nature-100 text-nature-700 px-4 py-1.5 rounded-full font-medium text-sm">
+                    ✨ Join the Green Revolution
+                </div>
+                <h1 class="text-5xl lg:text-7xl font-extrabold text-slate-800 leading-tight">
+                    Turn Your Waste Into <span class="text-transparent bg-clip-text bg-gradient-to-r from-nature-500 to-nature-700">Wealth</span>
+                </h1>
+                <p class="text-xl text-slate-600 leading-relaxed max-w-2xl">
+                    Connect with local composting experts, learn eco-friendly waste management, and schedule pickups. Let's build a greener future together.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 pt-4">
+                    <a href="services.html" class="btn-primary flex-1 text-center py-4 text-lg">Find Services 🔍</a>
+                    <a href="education.html" class="btn-secondary flex-1 text-center py-4 text-lg">Learn How 📚</a>
+                </div>
+                <div class="flex items-center gap-4 pt-6 text-sm text-slate-500">
+                    <div class="flex -space-x-2">
+                        <div class="w-8 h-8 rounded-full bg-nature-200 border-2 border-white flex justify-center items-center">👩</div>
+                        <div class="w-8 h-8 rounded-full bg-nature-300 border-2 border-white flex justify-center items-center">👨</div>
+                        <div class="w-8 h-8 rounded-full bg-nature-400 border-2 border-white flex justify-center items-center">🧑</div>
+                    </div>
+                    <span>Loved by 10,000+ eco-warriors</span>
+                </div>
+            </div>
+            
+            <div class="flex-1 relative w-full">
+                <!-- Decorative background elements -->
+                <div class="absolute -top-10 -right-10 w-64 h-64 bg-nature-200 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob"></div>
+                <div class="absolute -bottom-10 -left-10 w-64 h-64 bg-green-200 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-2000"></div>
+                
+                <div class="glass p-8 rounded-3xl relative z-10 grid grid-cols-2 gap-4">
+                    <div class="glass p-6 rounded-2xl flex flex-col justify-center items-center space-y-3 bg-nature-50">
+                        <span class="text-4xl text-center">♻️</span>
+                        <h3 class="font-bold text-center">Compost Experts</h3>
+                        <p class="text-xs text-center text-slate-500">Verified professionals</p>
+                    </div>
+                    <div class="glass p-6 rounded-2xl flex flex-col justify-center items-center space-y-3 bg-nature-50 mt-12">
+                        <span class="text-4xl text-center">🚚</span>
+                        <h3 class="font-bold text-center">Waste Pickup</h3>
+                        <p class="text-xs text-center text-slate-500">Scheduled exactly when you need it</p>
+                    </div>
+                    <div class="glass p-6 rounded-2xl flex flex-col justify-center items-center space-y-3 bg-nature-50 -mt-8">
+                        <span class="text-4xl text-center">🌍</span>
+                        <h3 class="font-bold text-center">Eco-Points</h3>
+                        <p class="text-xs text-center text-slate-500">Earn rewards for recycling</p>
+                    </div>
+                    <div class="glass p-6 rounded-2xl flex flex-col justify-center items-center space-y-3 bg-nature-50 mt-4">
+                        <span class="text-4xl text-center">📖</span>
+                        <h3 class="font-bold text-center">Learn</h3>
+                        <p class="text-xs text-center text-slate-500">Tutorials & DIY guides</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="bg-white py-20 px-4">
+            <div class="max-w-7xl mx-auto text-center space-y-12">
+                <h2 class="text-4xl font-bold text-slate-800">How It Works</h2>
+                <div class="grid md:grid-cols-3 gap-8">
+                    <div class="p-6 space-y-4">
+                        <div class="w-16 h-16 bg-nature-100 text-nature-600 rounded-2xl flex justify-center items-center text-2xl mx-auto mb-6">1️⃣</div>
+                        <h3 class="text-xl font-bold">Register & Explore</h3>
+                        <p class="text-slate-600">Sign up locally, and discover smart waste management services tailored to you.</p>
+                    </div>
+                    <div class="p-6 space-y-4">
+                        <div class="w-16 h-16 bg-nature-100 text-nature-600 rounded-2xl flex justify-center items-center text-2xl mx-auto mb-6">2️⃣</div>
+                        <h3 class="text-xl font-bold">Book a Service</h3>
+                        <p class="text-slate-600">Find vetted composting experts and arrange waste pickups with just a tap.</p>
+                    </div>
+                    <div class="p-6 space-y-4">
+                        <div class="w-16 h-16 bg-nature-100 text-nature-600 rounded-2xl flex justify-center items-center text-2xl mx-auto mb-6">3️⃣</div>
+                        <h3 class="text-xl font-bold">Make an Impact</h3>
+                        <p class="text-slate-600">Track your carbon offset, learn new practices, and earn eco-points!</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <div id="footer-root"></div>
+
+    <!-- CSS Animations -->
+    <style>
+        @keyframes blob {
+            0% { transform: translate(0px, 0px) scale(1); }
+            33% { transform: translate(30px, -50px) scale(1.1); }
+            66% { transform: translate(-20px, 20px) scale(0.9); }
+            100% { transform: translate(0px, 0px) scale(1); }
+        }
+        .animate-blob {
+            animation: blob 7s infinite;
+        }
+        .animation-delay-2000 {
+            animation-delay: 2s;
+        }
+    </style>
+    <script src="js/components.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            ui.renderNavbar('home');
+            ui.renderFooter();
+        });
+    </script>
+</body>
+</html>

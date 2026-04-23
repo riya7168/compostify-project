@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learn Composting - Compostify</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: { extend: { colors: {
+                nature: { 50:'#ecfdf5',100:'#d1fae5',500:'#10b981',600:'#059669',700:'#047857' },
+                earth:  { 100:'#fef3c7',600:'#92400e',800:'#422006' },
+                leaf:   { 400:'#86efac',600:'#16a34a' }
+            }, fontFamily: { display: ['"Playfair Display"','serif'], body: ['"DM Sans"','sans-serif'] } } }
+        }
+    </script>
+    <style>
+        * { font-family: 'DM Sans', sans-serif; }
+        h1,h2,h3,.font-display { font-family: 'Playfair Display', serif; }
+        body { background: #f0fdf4; min-height: 100vh; }
+
+        /* Hero */
+        .hero-bg {
+            background: linear-gradient(135deg, #052e16 0%, #14532d 50%, #166534 100%);
+            position: relative; overflow: hidden;
+        }
+        .hero-bg::before {
+            content: '';
+            position: absolute; inset: 0;
+            background-image: radial-gradient(circle at 20% 50%, rgba(134,239,172,0.15) 0%, transparent 50%),
+                              radial-gradient(circle at 80% 20%, rgba(16,185,129,0.1) 0%, transparent 40%);
+        }
+        .leaf-pattern {
+            position: absolute; inset: 0; opacity: 0.04;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 5 C10 5 5 25 5 30 C5 35 10 55 30 55 C50 55 55 35 55 30 C55 25 50 5 30 5Z' fill='%23ffffff'/%3E%3C/svg%3E");
+            background-size: 60px 60px;
+        }
+
+        /* Topic cards */
+        .topic-card {
+            background: white; border-radius: 20px;
+            border: 1px solid #d1fae5;
+            transition: transform 0.25s, box-shadow 0.25s;
+            overflow: hidden;
+        }
+        .topic-card:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(5,150,105,0.12); }
+        .topic-card .card-header { padding: 24px 24px 16px; }
+        .topic-card .card-body { padding: 0 24px 24px; }
+
+        /* Detail panel */
+        .detail-panel {
+            display: none;
+            background: linear-gradient(135deg, #f0fdf4, #ecfdf5);
+            border-top: 2px solid #a7f3d0;
+        }
+        .detail-panel.open { display: block; }
+
+        /* Steps */
+        .step-item { display: flex; gap: 16px; align-items: flex-start; margin-bottom: 16px; }
+        .step-num {
+            min-width: 36px; height: 36px; border-radius: 50%;
+            background: linear-gradient(135deg, #059669, #10b981);
+            color: white; font-weight: 700; font-size: 14px;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+
+        /* Filter tabs */
+        .filter-tab { padding: 8px 20px; border-radius: 100px; font-weight: 600; font-size: 14px; cursor: pointer; transition: all 0.2s; border: 2px solid transparent; }
+        .filter-tab.active { background: #059669; color: white; }
+        .filter-tab:not(.active) { background: white; color: #475569; border-color: #e2e8f0; }
+        .filter-tab:not(.active):hover { border-color: #059669; color: #059669; }
+
+        /* Progress bar */
+        .xp-bar { height: 8px; border-radius: 100px; background: #d1fae5; overflow: hidden; }
+        .xp-fill { height: 100%; background: linear-gradient(90deg, #10b981, #059669); border-radius: 100px; transition: width 0.8s ease; }
+
+        /* Tip box */
+        .tip-box { background: #fefce8; border-left: 4px solid #fbbf24; border-radius: 0 12px 12px 0; padding: 14px 18px; margin: 10px 0; }
+        .mistake-box { background: #fff1f2; border-left: 4px solid #f43f5e; border-radius: 0 12px 12px 0; padding: 14px 18px; margin: 10px 0; }
+        .benefit-item { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; }
+
+        /* Fade in */
+        @keyframes fadeUp { from { opacity:0; transform: translateY(20px); } to { opacity:1; transform: translateY(0); } }
+        .fade-up { animation: fadeUp 0.4s ease both; }
+
+        .read-toggle { cursor: pointer; user-select: none; }
+        .chevron { transition: transform 0.3s; display: inline-block; }
+        .chevron.open { transform: rotate(180deg); }
+        .glass { background: rgba(193, 192, 192, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.3); }
+        .navbar-glass { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.5); }
+    </style>
+</head>
+<body>
+    <div id="navbar-root"></div>
+
+    <!-- ═══════════════ HERO ═══════════════ -->
+    <section class="hero-bg text-white py-20 px-4 relative">
+        <div class="leaf-pattern"></div>
+        <div class="max-w-4xl mx-auto text-center relative z-10">
+            <div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur px-4 py-2 rounded-full text-sm font-semibold mb-6 border border-white/20">
+                🇮🇳 Made for Indian Homes & Schools
+            </div>
+            <h1 class="text-5xl md:text-6xl font-display font-black leading-tight mb-6">
+                Learn to Compost.<br>
+                <span class="text-green-300">Save the Planet.</span>
+            </h1>
+            <p class="text-xl text-green-100 max-w-2xl mx-auto mb-10">
+                Simple, practical composting guides designed for Indian kitchens, apartments, and communities — from absolute beginners to green champions.
+            </p>
+            <div class="flex flex-wrap justify-center gap-6 text-center">
+                <div class="glass rounded-2xl px-8 py-4">
+                    <p class="text-3xl font-display font-black text-green-300">10</p>
+                    <p class="text-sm text-green-100">Learning Guides</p>
+                </div>
+                <div class="glass rounded-2xl px-8 py-4">
+                    <p class="text-3xl font-display font-black text-green-300">5 min</p>
+                    <p class="text-sm text-green-100">Avg. Read Time</p>
+                </div>
+                <div class="glass rounded-2xl px-8 py-4">
+                    <p class="text-3xl font-display font-black text-green-300">100%</p>
+                    <p class="text-sm text-green-100">Free & Practical</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════ XP TRACKER ═══════════════ -->
+    <section class="max-w-5xl mx-auto px-4 -mt-6 relative z-10">
+        <div class="bg-white rounded-2xl shadow-lg border border-green-100 p-6 flex flex-col md:flex-row items-center gap-6">
+            <div class="flex-grow w-full">
+                <div class="flex justify-between mb-2">
+                    <span class="font-semibold text-slate-700">🌱 Seedling &nbsp;→&nbsp; 🌿 Composter</span>
+                    <span id="xp-label" class="text-sm font-bold text-green-800">0 / 100 XP</span>
+                </div>
+                <div class="xp-bar"><div class="xp-fill" id="xp-fill" style="width:0%"></div></div>
+                <p class="text-xs text-slate-400 mt-1">Read guides to earn XP and level up your composting rank!</p>
+            </div>
+            <div class="flex gap-3 shrink-0">
+                <div class="flex flex-col items-center" id="badge-1">
+                    <div class="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-2xl grayscale opacity-50 transition-all" id="badge-icon-1">🥬</div>
+                    <span class="text-xs font-bold mt-1 text-slate-400">Greens</span>
+                </div>
+                <div class="flex flex-col items-center" id="badge-2">
+                    <div class="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-2xl grayscale opacity-50 transition-all" id="badge-icon-2">🪱</div>
+                    <span class="text-xs font-bold mt-1 text-slate-400">Worm</span>
+                </div>
+                <div class="flex flex-col items-center" id="badge-3">
+                    <div class="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-2xl grayscale opacity-50 transition-all" id="badge-icon-3">🏆</div>
+                    <span class="text-xs font-bold mt-1 text-slate-400">Master</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════ FILTER + GRID ═══════════════ -->
+    <main class="max-w-5xl mx-auto px-4 py-12">
+
+        <div class="flex flex-wrap gap-3 mb-8">
+            <button class="filter-tab active" data-filter="all">All Topics</button>
+            <button class="filter-tab" data-filter="basics">🌱 Basics</button>
+            <button class="filter-tab" data-filter="methods">⚙️ Methods</button>
+            <button class="filter-tab" data-filter="india">🇮🇳 India-Specific</button>
+            <button class="filter-tab" data-filter="environment">🌍 Environment</button>
+        </div>
+
+        <div id="topics-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Cards injected by JS -->
+        </div>
+    </main>
+
+    <!-- ═══════════════ QUICK FACTS BANNER ═══════════════ -->
+    <section class="bg-gradient-to-r from-green-800 to-emerald-700 text-white py-12 px-4">
+        <div class="max-w-5xl mx-auto text-center">
+            <h2 class="text-3xl font-display font-black mb-8">Did You Know? 🇮🇳</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="glass rounded-2xl p-6">
+                    <p class="text-4xl font-display font-black text-green-300">62M</p>
+                    <p class="text-green-100 mt-2">Tonnes of solid waste generated in India every year</p>
+                </div>
+                <div class="glass rounded-2xl p-6">
+                    <p class="text-4xl font-display font-black text-green-300">50%</p>
+                    <p class="text-green-100 mt-2">Of Indian household waste is organic and compostable</p>
+                </div>
+                <div class="glass rounded-2xl p-6">
+                    <p class="text-4xl font-display font-black text-green-300">1 kg</p>
+                    <p class="text-green-100 mt-2">Of compost can replace ₹80 worth of chemical fertiliser</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div id="footer-root"></div>
+    <script src="js/components.js"></script>
+    <script src="js/api.js"></script>
+    <script>
+    // ═══════════════════════════════════════════════════
+    //  EDUCATION CONTENT DATA
+    // ═══════════════════════════════════════════════════
+    const TOPICS = [
+      {
+        id: 1, category: 'basics', emoji: '🌿', readTime: '4 min', level: 'Beginner', xp: 10,
+        title: 'What is Composting?',
+        shortDesc: 'Composting is nature\'s way of recycling. It turns your kitchen and garden waste into rich, dark soil that plants love — and keeps garbage out of landfills.',
+        detail: `<p>Composting is the natural process of breaking down organic material — food scraps, leaves, vegetable peels — into a dark, crumbly substance called <strong>compost</strong> or <em>jeevamrut</em> in traditional Indian farming.</p>
+<p style="margin-top:12px">Tiny living things like bacteria, fungi, and worms do all the hard work. They eat the organic waste and turn it into something incredibly valuable for the soil. It usually takes <strong>4 to 8 weeks</strong> for kitchen waste to become usable compost.</p>
+<p style="margin-top:12px">Think of it like making <em>dal</em>: you put in raw ingredients, apply the right conditions (heat, moisture), and over time it transforms into something nourishing.</p>`,
+        steps: [
+          'Collect kitchen waste: vegetable peels, fruit scraps, tea leaves, eggshells',
+          'Choose a composting method suited to your space (bin, pit, or pot)',
+          'Add dry material (dried leaves, newspaper) to balance the moisture',
+          'Keep the pile moist — like a wrung-out sponge, not soaking wet',
+          'Turn/mix the pile once a week to add oxygen',
+          'After 4–8 weeks, your compost is ready when it looks dark and smells earthy'
+        ],
+        benefits: ['Reduces household waste by up to 50%','Creates free, organic fertiliser for plants','Reduces methane emissions from landfills','Improves soil health and water retention'],
+        tips: ['Start small — even a 5-litre pot on your balcony works','Add a handful of dry leaves after every batch of wet waste','If it smells bad, add more dry material and turn it','Keep a small covered bin in the kitchen to collect daily scraps'],
+        mistakes: ['Adding meat, fish, or oily food — this attracts pests','Making the pile too wet — it becomes anaerobic and smelly','Never mixing/turning the pile — it slows decomposition','Adding large chunks — chop peels and scraps smaller for faster results']
+      },
+      {
+        id: 2, category: 'methods', emoji: '🗂️', readTime: '6 min', level: 'Beginner', xp: 15,
+        title: 'Types of Composting',
+        shortDesc: 'From simple kitchen pots to community pits — there are several composting methods that suit Indian homes, apartments, and societies. Here\'s a guide to find yours.',
+        detail: `<p>Not everyone has a garden or terrace. That's perfectly fine! Here are the most popular composting methods in India:</p>
+<ul style="margin-top:12px; padding-left:20px; list-style:disc; line-height:2">
+  <li><strong>Pot/Bin Composting</strong> — Ideal for flats. Use a 20–30 litre plastic bin with holes.</li>
+  <li><strong>Vermicomposting</strong> — Uses Eisenia fetida worms (red wigglers) to speed up the process. Very popular in urban India.</li>
+  <li><strong>Pit Composting</strong> — Dig a 1×1 metre pit in your garden or housing society compound. Best for bungalows.</li>
+  <li><strong>Terrace Composting</strong> — Use stackable bins or drums on your terrace. Great for Pune, Bengaluru, and Chennai households.</li>
+  <li><strong>Community Composting</strong> — Housing societies collectively compost in a dedicated area. Managed by RWAs (Resident Welfare Associations).</li>
+</ul>`,
+        steps: [
+          'Assess your space: balcony, garden, terrace, or society compound?',
+          'Choose method: bin (flat), vermicomposting (beginner-friendly), pit (bungalow), or community',
+          'Gather materials: bin/pot, dry leaves or cocopeat, starter compost or soil',
+          'Begin with small batches — 1–2 kg of waste at a time',
+          'Follow the specific instructions for your chosen method',
+          'Scale up gradually as you get comfortable'
+        ],
+        benefits: ['There is a method for every household type','Vermicomposting produces liquid fertiliser too (leachate)','Community composting builds neighbourhood bonds','Pit composting is zero-cost for those with outdoor space'],
+        tips: ['For apartments, vermicomposting is the most odour-free option','Use cocopeat (coconut fibre) instead of soil as a base — it\'s lightweight and absorbs moisture well','Join your local RWA to push for society-level composting','Cover your bin/pit with a jute sack or lid to prevent flies'],
+        mistakes: ['Using a completely airtight container — compost needs airflow','Starting too big and getting overwhelmed — begin small','Ignoring the dry:wet ratio — always balance wet kitchen waste with dry material','Leaving the bin in direct harsh sunlight — it dries out too fast']
+      },
+      {
+        id: 3, category: 'india', emoji: '🏠', readTime: '7 min', level: 'Beginner', xp: 15,
+        title: 'How to Compost at Home in India',
+        shortDesc: 'Step-by-step guide to starting your composting journey right in your Indian kitchen. Uses everyday items and waste you already generate daily.',
+        detail: `<p>Indian kitchens generate plenty of compostable waste daily: vegetable peels, fruit skins, tea powder, coffee grounds, leftover roti, rice water, and more. Here\'s how to turn it all into gold for your plants.</p>
+<p style="margin-top:12px">You\'ll need: a plastic bucket or matka (20–30 litres) with a lid, a drill or nail to make holes, cocopeat or dry mud, and a dedicated corner of your kitchen/balcony.</p>`,
+        steps: [
+          'Get a 20–30 litre bucket with a lid. Drill 8–10 small holes on the sides and bottom for aeration and drainage.',
+          'Place it on a tray to collect any liquid that drains out — this is liquid fertiliser (dilute 10:1 with water and use on plants).',
+          'Add a 2-inch base layer of cocopeat, dry mud, or dried leaves.',
+          'Daily: add kitchen waste — vegetable peels, fruit scraps, tea leaves, eggshells, leftover dry food.',
+          'After every addition of wet waste, sprinkle a handful of dry material (cocopeat, dry leaves, or torn newspaper).',
+          'Mix with a stick or garden trowel once every 2–3 days.',
+          'In 4–6 weeks, the bottom layer will be ready — dark, crumbly, and earthy-smelling.',
+          'Remove the finished compost, use it in pots or gardens, and restart the process.'
+        ],
+        benefits: ['Zero cost — uses waste you already produce','Reduces wet waste going to the garbage collector by 50%','Produces free organic fertiliser for balcony or terrace gardens','No smell when done correctly','Teaches children sustainable habits from an early age'],
+        tips: ['Keep a small stainless steel container with a lid under the kitchen sink to collect daily peels — empty it into the main bin every evening','Add rice water or coconut shell water to keep the pile moist','Banana peels, tea leaves, and coconut shells are excellent compost activators','Crush eggshells before adding — they take long to decompose otherwise'],
+        mistakes: ['Adding dairy products, oil, or non-veg — attracts cockroaches and rats','Letting the bin dry out completely in summer — mist with water occasionally','Forgetting to add dry material — the pile becomes too wet and smelly','Ignoring the process for weeks — a quick stir every few days makes a huge difference']
+      },
+      {
+        id: 4, category: 'india', emoji: '♻️', readTime: '5 min', level: 'Beginner', xp: 10,
+        title: 'Wet Waste vs Dry Waste',
+        shortDesc: 'India\'s Swachh Bharat guidelines require households to segregate waste. Understanding what is wet (compostable) and dry (recyclable) is the first step to composting.',
+        detail: `<p>Most Indian municipalities — including BBMP (Bengaluru), BMC (Mumbai), and NDMC (Delhi) — require households to segregate waste into <strong>Green Bins (wet/organic)</strong> and <strong>Blue Bins (dry/recyclable)</strong>.</p>
+<p style="margin-top:12px"><strong>Wet waste = compostable organic matter.</strong> This is what your compost bin needs.</p>
+<p style="margin-top:12px"><strong>Dry waste = recyclables like plastic, paper, glass, and metal.</strong> These go to the raddi-wala or recycling centre.</p>
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:16px;">
+  <div style="background:#f0fdf4; padding:14px; border-radius:12px; border:1px solid #a7f3d0">
+    <strong style="color:#166534">✅ WET (Compostable)</strong>
+    <ul style="margin-top:8px; padding-left:16px; list-style:disc; line-height:1.9; font-size:14px">
+      <li>Vegetable & fruit peels</li><li>Cooked rice, dal, roti (no oil)</li>
+      <li>Tea leaves & coffee grounds</li><li>Eggshells</li>
+      <li>Flowers & puja samagri</li><li>Coconut shells & husks</li>
+    </ul>
+  </div>
+  <div style="background:#fff1f2; padding:14px; border-radius:12px; border:1px solid #fecdd3">
+    <strong style="color:#be123c">❌ DRY / NON-COMPOSTABLE</strong>
+    <ul style="margin-top:8px; padding-left:16px; list-style:disc; line-height:1.9; font-size:14px">
+      <li>Plastic bags & wrappers</li><li>Meat, fish, bones</li>
+      <li>Oily or fried food</li><li>Sanitary waste</li>
+      <li>Glass & metal</li><li>Coated paper / receipts</li>
+    </ul>
+  </div>
+</div>`,
+        steps: [
+          'Place two bins in your kitchen — one green (wet), one blue (dry)',
+          'Train every family member on what goes where',
+          'Each evening, transfer the green bin contents to your compost pile',
+          'Hand dry recyclables to your local raddi-wala or municipality collection',
+          'Wash and dry plastic/glass before putting in blue bin to reduce odour'
+        ],
+        benefits: ['Follows Swachh Bharat Mission guidelines','Reduces landfill burden significantly','Makes composting cleaner and easier','Enables better recycling of dry waste'],
+        tips: ['Stick a laminated chart of wet vs dry items on your fridge','Rinse vegetable peels before adding to the compost bin to reduce fruit flies','Banana peels and onion skins are among the fastest to decompose — great starters'],
+        mistakes: ['Mixing plastic bags with wet waste — it contaminates the compost','Adding cooked food with oil or spices regularly — it attracts pests','Not draining excess water from wet waste before adding to bin — keeps it too soggy']
+      },
+      {
+        id: 5, category: 'india', emoji: '🏢', readTime: '6 min', level: 'Intermediate', xp: 20,
+        title: 'Composting in Apartments',
+        shortDesc: 'No garden? No problem. Millions of urban Indians live in flats — here\'s how to compost effectively in small spaces without any smell or mess.',
+        detail: `<p>Apartment composting has taken off in cities like Bengaluru, Pune, Mumbai, and Hyderabad. You don\'t need outdoor space — just a balcony corner or even under the kitchen sink.</p>
+<p style="margin-top:12px"><strong>Best method for apartments: Vermicomposting or pot composting with cocopeat.</strong></p>
+<p style="margin-top:12px">Vermicomposting uses red wiggler worms (Eisenia fetida) available online for ₹200–400. They eat waste faster, produce richer compost, and are completely odour-free when managed well.</p>`,
+        steps: [
+          'Buy or make a 2–3 tier worm bin (stackable trays available on Amazon India for ₹800–₹1500)',
+          'Line the bottom tray with moist cocopeat (2–3 inches) and add 100–200 worms',
+          'Add small amounts of kitchen waste daily — vegetable peels, fruit scraps, tea leaves',
+          'Chop waste into small pieces (2–3 cm) so worms can eat it faster',
+          'Keep the bin in a cool, dark spot — inside a cupboard, balcony corner, or under the sink',
+          'In 6–8 weeks, the bottom tray will be full of dark, rich worm castings (compost)',
+          'Harvest compost and move worms to the fresh tray to continue'
+        ],
+        benefits: ['Completely odour-free when managed correctly','Worm castings are 5x richer in nutrients than regular compost','Produces liquid fertiliser (worm leachate) — dilute and use on plants','Worms multiply on their own — no need to buy more','Fits under a kitchen counter or in a 2×2 ft balcony space'],
+        tips: ['Never add citrus peels (lemon, orange) in large quantities — worms dislike them','Keep a small bowl of water under each tray leg to prevent ants from entering','During Mumbai/Chennai summers, keep the bin indoors — worms die above 35°C','Facebook groups like "Bangalore Composters" and "Urban Leaves India" have active communities for help'],
+        mistakes: ['Overfeeding — add only what the worms can eat in 2 days','Adding too much at once when starting — build up slowly over 2 weeks','Making the bin too dry or too wet — both are harmful to worms','Using a fully sealed container — worms need air to survive']
+      },
+      {
+        id: 6, category: 'india', emoji: '🌧️', readTime: '5 min', level: 'Intermediate', xp: 15,
+        title: 'Composting During Monsoon',
+        shortDesc: 'India\'s heavy monsoons can turn your compost pile into a soggy mess. Here\'s how to keep composting efficiently through June to September.',
+        detail: `<p>The Indian monsoon (June–September) brings challenges for outdoor composting — excessive moisture, slow decomposition, and strong odours. But with a few adjustments, you can compost all year round.</p>
+<p style="margin-top:12px">The key challenge: too much water drives out oxygen, making decomposition anaerobic (smelly). The solution: <strong>more dry material + covered bins + indoor processing</strong>.</p>`,
+        steps: [
+          'Move your compost bin under a covered area — balcony, garage, or under the staircase',
+          'Double the amount of dry material you add (cocopeat, dried leaves, sawdust, torn newspaper)',
+          'If outdoor pit composting, cover with a tarp or old saree to prevent waterlogging',
+          'Turn the pile more frequently — every 2–3 days instead of weekly',
+          'Drill extra holes in bins for better drainage during monsoon',
+          'If the pile smells, add a fistful of quick lime (chuna) or dry wood ash to absorb moisture',
+          'Switch to vermicomposting indoors during heavy rain months if possible'
+        ],
+        benefits: ['Composting continues year-round — no seasonal breaks','Monsoon heat + moisture actually speeds up decomposition if balanced correctly','Keeps organic waste out of waterlogged municipal drainage systems','Finished monsoon compost is excellent for post-monsoon garden planting (September–October)'],
+        tips: ['Stock up on dry cocopeat or sawdust before June — availability drops during monsoon','Store dry leaves collected in autumn (November) in a sack for use during monsoon','Keep a lid with weights on outdoor bins to prevent flooding','In Kerala and coastal Maharashtra, underground bins with drainage are more effective than surface bins'],
+        mistakes: ['Leaving the bin uncovered during heavy rainfall — it gets waterlogged','Stopping composting altogether during monsoon — consistency is key','Not adding enough dry matter — wet waste alone turns anaerobic quickly','Ignoring bad smells — act immediately by adding dry material and turning the pile']
+      },
+      {
+        id: 7, category: 'environment', emoji: '🌍', readTime: '5 min', level: 'Beginner', xp: 10,
+        title: 'Environmental Benefits of Composting',
+        shortDesc: 'Why does composting matter beyond your garden? It fights climate change, reduces landfill pressure, and restores India\'s degrading soil — here\'s the science.',
+        detail: `<p>India generates over 62 million tonnes of solid waste every year, and nearly 50% of it is organic. Most of this ends up in overflowing landfills where it produces <strong>methane</strong> — a greenhouse gas 28 times more potent than CO₂.</p>
+<p style="margin-top:12px">When you compost at home, you are directly reducing this climate impact. At scale, community and municipal composting could cut India\'s greenhouse emissions significantly.</p>
+<p style="margin-top:12px">Additionally, India loses thousands of acres of arable topsoil every year due to chemical farming. Compost restores organic matter to the soil, reducing the need for chemical fertilisers that degrade land quality.</p>`,
+        steps: [],
+        benefits: [
+          '🌡️ Reduces methane emissions from landfills',
+          '🌱 Restores organic matter in India\'s degrading agricultural soil',
+          '💧 Compost-amended soil retains water better, reducing irrigation needs by 30%',
+          '🐛 Improves soil biodiversity — earthworms, microbes, and fungi return',
+          '🏭 Reduces demand for synthetic chemical fertilisers (which are petroleum-based)',
+          '🚛 Reduces municipal waste collection and transport costs for cities'
+        ],
+        tips: ['Share your composting story on social media — every person who starts composting multiplies the impact','Encourage your apartment society to start collective composting','Use compost instead of chemical fertiliser for any plants or kitchen gardens'],
+        mistakes: ['Thinking individual action doesn\'t matter — 1 household composting for 1 year diverts 150–200 kg of waste from landfill','Assuming composting is only for gardeners — even if you don\'t garden, you can donate compost to parks, neighbours, or community gardens']
+      },
+      {
+        id: 8, category: 'methods', emoji: '🪣', readTime: '8 min', level: 'Beginner', xp: 20,
+        title: 'DIY Compost Bin at Home',
+        shortDesc: 'Build your own compost bin for under ₹200 using items you already have. No special tools needed — just a bucket, a nail, and 10 minutes of your time.',
+        detail: `<p>You do not need to buy an expensive compost bin. A simple plastic bucket or old matka (clay pot) works perfectly. Here\'s how to make one right now.</p>
+<p style="margin-top:12px"><strong>What you\'ll need:</strong></p>
+<ul style="padding-left:20px; list-style:disc; margin-top:8px; line-height:2">
+  <li>1 plastic bucket with lid (20–30 litres) — an old Bisleri jar or paint bucket works</li>
+  <li>1 nail or drill — to make aeration holes</li>
+  <li>1 old tray or plate — to catch drips underneath</li>
+  <li>Cocopeat (1 small packet, ₹50–80 at any nursery)</li>
+  <li>A stick or old spoon for stirring</li>
+</ul>`,
+        steps: [
+          'Take your bucket and using a nail heated on flame (or a drill), make 8–10 small holes on the sides and 4–5 on the bottom',
+          'Place the bucket on a tray or old plate to catch drip water (this is liquid fertiliser!)',
+          'Add a 3-inch base layer of cocopeat or dry mud',
+          'Add your first batch of kitchen scraps (vegetable peels, fruit scraps, tea leaves)',
+          'Cover with a thin layer of cocopeat or dry leaves',
+          'Put the lid on loosely — not completely sealed, just to keep flies out',
+          'Every day: add waste + cover with dry material. Every 3 days: stir gently.',
+          'In 5–7 weeks, bottom compost will be ready. Remove it and restart!'
+        ],
+        benefits: ['Costs under ₹200 total','Uses items you already have at home','Can be set up in 10 minutes','Works on any balcony or kitchen corner','Fully customisable — make it as big or small as you need'],
+        tips: ['Label your bin with the start date so you know when to expect compost','Make 2 bins — one filling up, one \'resting\' and maturing','Decorate the bin to make it a fun family project with kids','Clay matkas (pots) are excellent for composting — they breathe and regulate moisture naturally'],
+        mistakes: ['Drilling holes too large — insects will get in; aim for 3–5mm holes','Using a metallic container that rusts','Placing the bin in direct harsh afternoon sun without shade','Forgetting to put a tray underneath — the drip water stains floors and smells']
+      },
+      {
+        id: 9, category: 'methods', emoji: '🌻', readTime: '5 min', level: 'Intermediate', xp: 15,
+        title: 'Composting for Kitchen & Terrace Gardens',
+        shortDesc: 'If you grow vegetables, herbs, or flowers on your balcony or terrace, homemade compost will supercharge your plants and save you thousands on fertiliser every year.',
+        detail: `<p>Urban kitchen gardens are booming across India — from chilli plants in Mumbai chawls to tomato vines on Bengaluru terraces. Compost is the secret ingredient that makes the difference between struggling plants and thriving ones.</p>
+<p style="margin-top:12px">Compost does 4 key things for potted plants: it adds nutrients, improves soil structure so roots breathe, retains moisture (crucial in Indian summers), and adds beneficial microbes that fight root diseases.</p>`,
+        steps: [
+          'Wait until compost is fully mature — dark brown, crumbly, and smells earthy (not like food)',
+          'For new pots: mix 30% compost + 50% soil + 20% cocopeat as your potting mix',
+          'For existing plants: top-dress with 1–2 inches of compost around the base and water lightly',
+          'For vegetable plants (tomato, chilli, brinjal): add compost once a month during growing season',
+          'Use diluted worm leachate (1:10 with water) as a liquid feed every 2 weeks',
+          'Do not over-compost — too much can burn roots; always mix with soil'
+        ],
+        benefits: ['Replaces expensive chemical fertiliser (saves ₹500–₹2000/year for terrace gardeners)','Plants produce more fruits and flowers','Fewer pest and disease problems','Compost-fed soil retains water longer — less frequent watering needed','Closes the food loop: kitchen → compost → garden → kitchen'],
+        tips: ['Apply compost before the monsoon season for the best results — the rain activates the nutrients','For leafy greens (spinach, methi, coriander), compost alone is sufficient — no extra fertiliser needed','Neem cake mixed with compost (1:10) keeps fungal diseases and soil pests away','Save compost tea (the liquid drained from your bin) and spray on leaves for a natural growth booster'],
+        mistakes: ['Using immature/unfinished compost — it can damage roots and invite pests','Adding too much compost at once — a little goes a long way','Not watering after applying compost — it needs moisture to activate','Forgetting that compost is a soil amendment, not a complete replacement for soil']
+      },
+      {
+        id: 10, category: 'india', emoji: '🏛️', readTime: '5 min', level: 'Beginner', xp: 10,
+        title: 'Government Composting Initiatives in India',
+        shortDesc: 'India\'s governments — central, state, and municipal — have launched several schemes to promote composting. Know your rights, subsidies, and local resources.',
+        detail: `<p>Composting is now a policy priority in India, driven by the <strong>Swachh Bharat Mission (2014–ongoing)</strong> and the <strong>Solid Waste Management Rules, 2016</strong> which legally mandate waste segregation at source.</p>
+<p style="margin-top:12px">Several cities and states offer direct support — from free compost bins to bulk compost buyback programmes. Knowing these can save you money and connect you to your local green ecosystem.</p>
+<ul style="margin-top:16px; padding-left:20px; list-style:disc; line-height:2.2">
+  <li><strong>Bengaluru (BBMP):</strong> Distributes free compost bins and provides door-to-door organic waste collection. Their "Hasivu" programme collects wet waste from apartments.</li>
+  <li><strong>Mumbai (BMC):</strong> Subsidises community composting units for housing societies. Mandates composting for bulk waste generators (&gt;100 kg/day).</li>
+  <li><strong>Pune (PMC):</strong> Operates decentralised composting centres and buys finished compost from RWAs.</li>
+  <li><strong>Delhi:</strong> NDMC\'s "Zero Waste" initiative includes community composting pits in parks.</li>
+  <li><strong>Kerala:</strong> "Haritha Keralam" programme distributes vermicomposting kits to households at subsidised rates.</li>
+  <li><strong>National Compost Policy:</strong> The Ministry of Agriculture promotes compost use as an alternative to chemical fertilisers under the Paramparagat Krishi Vikas Yojana (PKVY).</li>
+</ul>`,
+        steps: [
+          'Visit your municipal corporation website or ward office and ask about free compost bin schemes',
+          'Check if your housing society qualifies for a bulk composting unit grant from your city\'s municipal body',
+          'Register your composting activity with BBMP/BMC/PMC to avail property tax rebates (where applicable)',
+          'Contact your state agriculture department about subsidised vermicomposting kits',
+          'Look for "Swachh Survekshan" rankings — cities reward residents who compost',
+          'Connect with your local NGOs: Daily Dump (Bengaluru), Paryavaran Mitra (Ahmedabad), Chintan (Delhi)'
+        ],
+        benefits: ['Free or subsidised bins reduce the cost barrier to starting','Municipal buyback programmes create income from compost','Policy compliance protects your society from fines for improper waste disposal','Government-linked NGOs offer free training and support','India\'s compost market is growing — early adopters benefit most'],
+        tips: ['Follow @SwachhBharat on Twitter/X for scheme updates','Ask your local corporator (nagar sevak) about ward-level composting budgets','Schools and colleges can apply for special composting grants under Eco-Clubs','File an RTI if your municipality is not providing mandated waste collection services'],
+        mistakes: ['Assuming government programmes are too complicated — most just require a simple registration form','Not following up — schemes sometimes have waiting lists; register early','Missing out on Swachh Survekshan surveys where your composting activity can earn your city points']
+      }
+    ];
+
+    // ═══════════════════════════════════════════════════
+    //  XP SYSTEM
+    // ═══════════════════════════════════════════════════
+    let totalXP = parseInt(localStorage.getItem('edu_xp') || '0');
+    const readTopics = new Set(JSON.parse(localStorage.getItem('edu_read') || '[]'));
+
+    function updateXPUI() {
+        const maxXP = Math.max(totalXP, 140);
+        const fillWidth = Math.min(totalXP, maxXP);
+        document.getElementById('xp-fill').style.width = (fillWidth / maxXP) * 100 + '%';
+        document.getElementById('xp-label').textContent = `${totalXP} / ${maxXP} XP`;
+        // Badges
+        if (totalXP >= 20) unlockBadge(1);
+        if (totalXP >= 50) unlockBadge(2);
+        if (totalXP >= 100) unlockBadge(3);
+    }
+
+    function unlockBadge(n) {
+        const el = document.getElementById(`badge-icon-${n}`);
+        if (el) { el.classList.remove('grayscale', 'opacity-50'); el.style.background = '#d1fae5'; }
+    }
+
+    function earnXP(topicId, xp) {
+        if (readTopics.has(topicId)) return;
+        readTopics.add(topicId);
+        totalXP += xp;
+        localStorage.setItem('edu_xp', totalXP);
+        localStorage.setItem('edu_read', JSON.stringify([...readTopics]));
+        updateXPUI();
+        if (window.ui) ui.showToast(`+${xp} XP earned! 🌿`, 'success');
+    }
+
+    // ═══════════════════════════════════════════════════
+    //  RENDER TOPICS
+    // ═══════════════════════════════════════════════════
+    function renderTopics(filter = 'all') {
+        const grid = document.getElementById('topics-grid');
+        grid.innerHTML = '';
+        const filtered = filter === 'all' ? TOPICS : TOPICS.filter(t => t.category === filter);
+
+        filtered.forEach((t, i) => {
+            const isRead = readTopics.has(t.id);
+            const stepsHTML = t.steps.length > 0 ? `
+                <div style="margin-top:20px">
+                    <h4 style="font-weight:700; color:#14532d; margin-bottom:12px; font-family:'Playfair Display',serif; font-size:16px">📋 How-To Guide</h4>
+                    ${t.steps.map((s, i) => `
+                        <div class="step-item">
+                            <div class="step-num">${i+1}</div>
+                            <p style="color:#374151; font-size:14px; padding-top:6px; line-height:1.6">${s}</p>
+                        </div>`).join('')}
+                </div>` : '';
+
+            const benefitsHTML = `
+                <div style="margin-top:20px">
+                    <h4 style="font-weight:700; color:#14532d; margin-bottom:10px; font-family:'Playfair Display',serif; font-size:16px">✅ Benefits</h4>
+                    ${t.benefits.map(b => `<div class="benefit-item"><span style="color:#10b981; font-size:18px; margin-top:2px">◆</span><p style="color:#374151; font-size:14px; line-height:1.6">${b}</p></div>`).join('')}
+                </div>`;
+
+            const tipsHTML = `
+                <div style="margin-top:20px">
+                    <h4 style="font-weight:700; color:#92400e; margin-bottom:10px; font-family:'Playfair Display',serif; font-size:16px">💡 Tips & Best Practices</h4>
+                    ${t.tips.map(tip => `<div class="tip-box"><p style="font-size:14px; color:#78350f; line-height:1.6">${tip}</p></div>`).join('')}
+                </div>`;
+
+            const mistakesHTML = `
+                <div style="margin-top:20px">
+                    <h4 style="font-weight:700; color:#be123c; margin-bottom:10px; font-family:'Playfair Display',serif; font-size:16px">⚠️ Common Mistakes to Avoid</h4>
+                    ${t.mistakes.map(m => `<div class="mistake-box"><p style="font-size:14px; color:#9f1239; line-height:1.6">${m}</p></div>`).join('')}
+                </div>`;
+
+            const levelColors = { Beginner: 'bg-green-100 text-green-800', Intermediate: 'bg-amber-100 text-amber-700', Advanced: 'bg-purple-100 text-purple-700' };
+
+            const card = document.createElement('div');
+            card.className = 'topic-card fade-up';
+            card.style.animationDelay = `${i * 0.05}s`;
+            card.setAttribute('data-id', t.id);
+            card.innerHTML = `
+                <div class="card-header">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px">
+                        <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center">
+                            <span style="font-size:28px">${t.emoji}</span>
+                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold ${levelColors[t.level]}">${t.level}</span>
+                            <span style="font-size:12px; color:#94a3b8; font-weight:600">⏱ ${t.readTime}</span>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:6px">
+                            ${isRead ? `<span style="font-size:11px; font-weight:700; color:#059669; background:#d1fae5; padding:3px 10px; border-radius:100px">✓ Read</span>` : `<span style="font-size:11px; font-weight:700; color:#64748b; background:#f1f5f9; padding:3px 10px; border-radius:100px">+${t.xp} XP</span>`}
+                        </div>
+                    </div>
+                    <h3 style="font-family:'Playfair Display',serif; font-size:20px; font-weight:800; color:#0f172a; margin-bottom:8px">${t.title}</h3>
+                    <p style="color:#64748b; font-size:14px; line-height:1.6">${t.shortDesc}</p>
+                </div>
+
+                <div class="card-body">
+                    <button class="read-toggle" onclick="toggleDetail(${t.id})" style="width:100%; display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-top:1px solid #d1fae5; color:#059669; font-weight:700; font-size:14px; background:none; border-left:none; border-right:none; border-bottom:none; cursor:pointer">
+                        <span id="toggle-label-${t.id}">Read Full Guide →</span>
+                        <span class="chevron" id="chevron-${t.id}">▼</span>
+                    </button>
+                </div>
+
+                <div class="detail-panel" id="detail-${t.id}">
+                    <div style="padding: 24px">
+                        <div style="font-size:15px; color:#374151; line-height:1.8">${t.detail}</div>
+                        ${stepsHTML}
+                        ${benefitsHTML}
+                        ${tipsHTML}
+                        ${mistakesHTML}
+                        <div style="margin-top:24px; padding-top:16px; border-top:1px solid #a7f3d0; display:flex; justify-content:flex-end">
+                            <button onclick="markRead(${t.id}, ${t.xp})" id="read-btn-${t.id}" style="background:linear-gradient(135deg,#059669,#10b981); color:white; font-weight:700; padding:10px 24px; border-radius:100px; border:none; cursor:pointer; font-size:14px" ${isRead ? 'disabled style="opacity:0.5;cursor:default;background:linear-gradient(135deg,#059669,#10b981);color:white;font-weight:700;padding:10px 24px;border-radius:100px;border:none"' : ''}>
+                                ${isRead ? '✓ Completed' : `Mark as Read (+${t.xp} XP)`}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+    }
+
+    function toggleDetail(id) {
+        const panel = document.getElementById(`detail-${id}`);
+        const chevron = document.getElementById(`chevron-${id}`);
+        const label = document.getElementById(`toggle-label-${id}`);
+        const isOpen = panel.classList.contains('open');
+        panel.classList.toggle('open', !isOpen);
+        chevron.classList.toggle('open', !isOpen);
+        label.textContent = isOpen ? 'Read Full Guide →' : 'Collapse ↑';
+    }
+
+    function markRead(id, xp) {
+        earnXP(id, xp);
+        const btn = document.getElementById(`read-btn-${id}`);
+        if (btn) { btn.textContent = '✓ Completed'; btn.disabled = true; btn.style.opacity = '0.5'; }
+        // Update XP badge on card
+        const card = document.querySelector(`[data-id="${id}"]`);
+        if (card) {
+            const xpBadge = card.querySelector(`[style*="f1f5f9"]`);
+            if (xpBadge) { xpBadge.textContent = '✓ Read'; xpBadge.style.background = '#d1fae5'; xpBadge.style.color = '#059669'; }
+        }
+    }
+
+    // Filter tabs
+    document.querySelectorAll('.filter-tab').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            renderTopics(btn.dataset.filter);
+        });
+    });
+
+    // Init
+    renderTopics();
+    updateXPUI();
+
+    document.addEventListener('DOMContentLoaded', () => {
+        if (window.ui) { ui.renderNavbar('education'); ui.renderFooter(); }
+    });
+    </script>
+</body>
+</html>

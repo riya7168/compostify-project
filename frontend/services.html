@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Services - Compostify</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { theme: { extend: { colors: { nature: { 50: '#ecfdf5', 100: '#d1fae5', 500: '#10b981', 600: '#059669', 700: '#047857' } } } } }
+    </script>
+    <style type="text/tailwindcss">
+        @layer components {
+            .glass { @apply bg-white/70 backdrop-blur-md border border-white/20 shadow-lg; }
+            .btn-primary { @apply bg-nature-600 hover:bg-nature-700 text-white font-semibold py-2 px-4 rounded-lg shadow; }
+            .input-field { @apply w-full p-2.5 rounded-lg border-gray-200 shadow-sm focus:ring-nature-500 focus:border-nature-500 bg-white/70; }
+        }
+        body { @apply bg-slate-50 text-slate-800 antialiased; background-image: radial-gradient(circle at 100% 100%, #ecfdf5 0%, #f8fafc 100%); min-height: 100vh; display: flex; flex-direction: column; }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <div id="navbar-root"></div>
+
+    <!-- Content -->
+    <main class="max-w-7xl mx-auto px-4 py-8 w-full flex-grow flex flex-col md:flex-row gap-8">
+        
+        <!-- Filters Sidebar -->
+        <aside class="w-full md:w-1/4">
+            <div class="glass p-6 rounded-2xl sticky top-24">
+                <h3 class="font-bold text-lg mb-4">🔍 Filters</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm mb-1 text-slate-600">Search Keywords</label>
+                        <input type="text" id="filter-search" class="input-field" placeholder="e.g. Scrap, Leaves...">
+                    </div>
+                    <div>
+                        <label class="block text-sm mb-1 text-slate-600">Location</label>
+                        <input type="text" id="filter-location" class="input-field" placeholder="e.g. New York">
+                    </div>
+                    <div>
+                        <label class="block text-sm mb-1 text-slate-600">Service Type</label>
+                        <select id="filter-type" class="input-field">
+                            <option value="">All Services</option>
+                            <option value="home_composting">🏡 Home Composting Setup</option>
+                            <option value="pickup">🚚 Compost Pickup</option>
+                            <option value="bulk_waste">🏢 Bulk Waste Collection</option>
+                            <option value="consultation">💬 Expert Consultation</option>
+                            <option value="vermicomposting">🪱 Vermicomposting</option>
+                            <option value="community_composting">🏘️ Community Composting</option>
+                            <option value="garden_soil_supply">🌿 Garden Soil Supply</option>
+                            <option value="compost_bin_rental">🗑️ Bin / Tumbler Rental</option>
+                            <option value="workshop_training">🎓 Workshop & Training</option>
+                            <option value="waste_audit">📋 Waste Audit</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm mb-1 flex justify-between text-slate-600">
+                            Max Price 
+                            <span id="price-display" class="font-bold text-nature-600">$100</span>
+                        </label>
+                        <input type="range" id="filter-max-price" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer" min="1" max="1000" value="100">
+                    </div>
+                    <!-- Trigger manual filter -->
+                    <button id="apply-filters" class="w-full btn-primary py-3">Apply Filters</button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Services Grid -->
+        <section class="w-full md:w-3/4">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-slate-800">Available Services</h2>
+                <span id="results-count" class="text-sm text-slate-500 font-medium">0 results</span>
+            </div>
+            
+            <div id="services-container" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Services will be injected here -->
+                <p class="text-slate-500 italic col-span-2">Loading services...</p>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Modal for Booking -->
+    <div id="booking-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex justify-center items-center p-4">
+        <div class="glass w-full max-w-md p-6 rounded-2xl shrink-0">
+            <h3 class="text-xl font-bold mb-4">Schedule Service</h3>
+            <form id="booking-form" class="space-y-4">
+                <input type="hidden" id="book-service-id">
+                <div>
+                    <label class="block text-sm mb-1">Pick a Date</label>
+                    <input type="date" id="book-date" class="input-field" required>
+                </div>
+                <div>
+                    <label class="block text-sm mb-1">Additional Notes</label>
+                    <textarea id="book-notes" class="input-field" rows="3" placeholder="Any special instructions..."></textarea>
+                </div>
+                <div class="flex justify-end gap-3 mt-6">
+                    <button type="button" class="close-modal px-4 py-2 font-medium text-slate-600 hover:bg-slate-100 rounded-lg">Cancel</button>
+                    <button type="submit" class="btn-primary">Confirm Booking</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal for Reviews -->
+    <div id="review-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex justify-center items-center p-4">
+        <div class="glass w-full max-w-lg p-6 rounded-2xl shrink-0 max-h-[90vh] flex flex-col">
+            <h3 class="text-xl font-bold mb-4" id="review-service-title">Reviews</h3>
+            
+            <div id="reviews-list" class="flex-grow overflow-y-auto space-y-3 mb-4 pr-2">
+                <!-- Reviews injected here -->
+            </div>
+
+            <div class="border-t pt-4">
+                <h4 class="font-bold text-sm mb-2">Leave a Review</h4>
+                <form id="review-form" class="space-y-3">
+                    <input type="hidden" id="review-service-id">
+                    <div class="flex gap-2">
+                        <select id="review-rating" class="input-field w-24">
+                            <option value="5">5 ⭐</option>
+                            <option value="4">4 ⭐</option>
+                            <option value="3">3 ⭐</option>
+                            <option value="2">2 ⭐</option>
+                            <option value="1">1 ⭐</option>
+                        </select>
+                        <input type="text" id="review-comment" class="input-field flex-grow" placeholder="Your review..." required>
+                    </div>
+                    <div class="flex justify-end gap-3 mt-2">
+                        <button type="button" class="close-modal px-4 py-2 font-medium text-slate-600 hover:bg-slate-100 rounded-lg">Close</button>
+                        <button type="submit" class="btn-primary">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/components.js"></script>
+    <script src="js/api.js"></script>
+    <script>
+        const servicesContainer = document.getElementById('services-container');
+        const countDisplay = document.getElementById('results-count');
+        
+        const bookingModal = document.getElementById('booking-modal');
+        const reviewModal = document.getElementById('review-modal');
+        const bookingForm = document.getElementById('booking-form');
+        const reviewForm = document.getElementById('review-form');
+
+        // Price slider UI
+        const maxPriceInput = document.getElementById('filter-max-price');
+        maxPriceInput.addEventListener('input', (e) => {
+            document.getElementById('price-display').textContent = '$' + e.target.value;
+        });
+
+        document.querySelectorAll('.close-modal').forEach(btn => {
+            btn.addEventListener('click', () => {
+                bookingModal.classList.add('hidden');
+                reviewModal.classList.add('hidden');
+            });
+        });
+
+        async function fetchServices() {
+            const location = document.getElementById('filter-location').value;
+            const type = document.getElementById('filter-type').value;
+            const maxPrice = maxPriceInput.value;
+            const searchQuery = document.getElementById('filter-search').value;
+
+            let queryParams = [];
+            if (location) queryParams.push(`location=${encodeURIComponent(location)}`);
+            if (type) queryParams.push(`serviceType=${encodeURIComponent(type)}`);
+            if (maxPrice) queryParams.push(`maxPrice=${maxPrice}`);
+            if (searchQuery) queryParams.push(`searchQuery=${encodeURIComponent(searchQuery)}`);
+
+            const queryString = queryParams.length > 0 ? `?${queryParams.join('&')}` : '';
+
+            try {
+                if (window.ui) ui.renderSpinner('services-container', 'Fetching latest services...');
+                else servicesContainer.innerHTML = '<p class="col-span-2 text-center text-slate-500">Fetching latest services... ⏳</p>';
+
+                console.log('Fetching from:', `/services${queryString}`);
+                const services = await api.services.getAll(queryString);
+                console.log('Services received:', services);
+                renderServices(services);
+            } catch (err) {
+                console.error('Fetch error:', err);
+                servicesContainer.innerHTML = `<p class="text-red-500 col-span-2 p-4 glass rounded-xl">Failed to load services: ${err.message}</p>`;
+                if (window.ui) ui.showToast('Failed to load services', 'error');
+            }
+        }
+
+        function renderServices(services) {
+            countDisplay.textContent = `${services.length} result(s)`;
+            if (services.length === 0) {
+                servicesContainer.innerHTML = '<div class="glass p-8 text-center col-span-2 rounded-2xl"><p class="text-xl text-slate-600 mb-2">No services found for your criteria 😔</p><button class="btn-primary mt-4" onclick="document.getElementById(\'filter-location\').value=\'\';document.getElementById(\'filter-type\').value=\'\';fetchServices();">Clear Filters</button></div>';
+                return;
+            }
+
+            servicesContainer.innerHTML = '';
+            services.forEach(s => {
+                const typeMap = {
+                    'home_composting': '🏡 Home Setup',
+                    'pickup': '🚚 Pickup',
+                    'bulk_waste': '🏢 Bulk Waste',
+                    'consultation': '💬 Consultation',
+                    'vermicomposting': '🪱 Vermicomposting',
+                    'community_composting': '🏘️ Community',
+                    'garden_soil_supply': '🌿 Soil Supply',
+                    'compost_bin_rental': '🗑️ Bin Rental',
+                    'workshop_training': '🎓 Workshop',
+                    'waste_audit': '📋 Waste Audit'
+                };
+
+                const providerBadge = s.provider && s.provider.isVerified ? `<span class="text-xs text-nature-600 bg-nature-100 px-1.5 py-0.5 rounded-full ml-1" title="Verified Expert">✅</span>` : '';
+                const providerName = s.provider ? s.provider.name + providerBadge : 'Unknown';
+
+                const card = document.createElement('div');
+                card.className = 'glass p-6 rounded-2xl flex flex-col h-full hover:shadow-xl transition-shadow duration-300';
+                card.innerHTML = `
+                    <div class="flex justify-between items-start mb-4">
+                        <span class="bg-nature-100 text-nature-700 text-xs font-bold px-2.5 py-1 rounded-full">${typeMap[s.serviceType] || s.serviceType}</span>
+                        <span class="text-lg font-bold text-slate-800">$${s.price}</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-800 mb-1">${s.title}</h3>
+                    <p class="text-xs text-slate-500 mb-2">by ${providerName}</p>
+                    <p class="text-slate-600 text-sm mb-4 line-clamp-3 flex-grow">${s.description}</p>
+                    <div class="flex items-center justify-between text-xs font-semibold text-slate-500 mb-4">
+                        <span>📍 ${s.location}</span>
+                        <button class="review-btn hover:text-nature-600 flex items-center gap-1" data-id="${s._id}" data-title="${s.title}">
+                            ⭐ ${s.rating > 0 ? s.rating : 'New'} (${s.reviewCount})
+                        </button>
+                    </div>
+                    <button class="w-full btn-primary book-btn" data-id="${s._id}">Book Now</button>
+                `;
+                servicesContainer.appendChild(card);
+            });
+
+            // Attach booking events
+            document.querySelectorAll('.book-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const token = localStorage.getItem('token');
+                    if (!token) {
+                        window.ui ? ui.showToast("Please register or log in first to book a service!", "info") : alert("Please register or log in first to book a service!");
+                        window.location.href = 'login.html';
+                        return;
+                    }
+                    const serviceId = e.target.getAttribute('data-id');
+                    document.getElementById('book-service-id').value = serviceId;
+                    bookingModal.classList.remove('hidden');
+                });
+            });
+
+            // Attach review events
+            document.querySelectorAll('.review-btn').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const serviceId = e.currentTarget.getAttribute('data-id');
+                    const title = e.currentTarget.getAttribute('data-title');
+                    document.getElementById('review-service-title').textContent = title + ' Reviews';
+                    document.getElementById('review-service-id').value = serviceId;
+                    
+                    const list = document.getElementById('reviews-list');
+                    list.innerHTML = '<p class="text-slate-500 text-sm text-center">Loading reviews...</p>';
+                    reviewModal.classList.remove('hidden');
+
+                    try {
+                        const reviews = await api.reviews.getByService(serviceId);
+                        if(reviews.length === 0) {
+                            list.innerHTML = '<p class="text-slate-500 text-sm text-center italic">No reviews yet. Be the first!</p>';
+                        } else {
+                            list.innerHTML = '';
+                            reviews.forEach(r => {
+                                const el = document.createElement('div');
+                                el.className = 'bg-white/50 p-3 rounded-lg border border-slate-100 text-sm';
+                                el.innerHTML = `
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="font-bold">${r.user ? r.user.name : 'Unknown User'}</span>
+                                        <span class="text-yellow-500">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</span>
+                                    </div>
+                                    <p class="text-slate-600">${r.comment}</p>
+                                `;
+                                list.appendChild(el);
+                            });
+                        }
+                    } catch (err) {
+                        list.innerHTML = '<p class="text-red-500 text-sm">Failed to load reviews.</p>';
+                    }
+                });
+            });
+        }
+
+        document.getElementById('apply-filters').addEventListener('click', fetchServices);
+
+        bookingForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const serviceId = document.getElementById('book-service-id').value;
+            const scheduledDate = document.getElementById('book-date').value;
+            const notes = document.getElementById('book-notes').value;
+
+            try {
+                const btn = e.target.querySelector('button[type="submit"]');
+                const origText = btn.textContent;
+                btn.textContent = 'Booking...';
+                await api.bookings.book({ serviceId, scheduledDate, notes });
+                btn.textContent = origText;
+                
+                window.ui ? ui.showToast('Booking Confirmed! ✅', 'success') : alert('Booking Confirmed!');
+                bookingModal.classList.add('hidden');
+                bookingForm.reset();
+            } catch (err) {
+                window.ui ? ui.showToast('Failed to book: ' + err.message, 'error') : alert('Failed to book!');
+                e.target.querySelector('button[type="submit"]').textContent = 'Confirm Booking';
+            }
+        });
+
+        reviewForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const serviceId = document.getElementById('review-service-id').value;
+            const rating = document.getElementById('review-rating').value;
+            const comment = document.getElementById('review-comment').value;
+            
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.ui ? ui.showToast("Please log in to leave a review.", "info") : alert("Please log in.");
+                return;
+            }
+
+            const btn = e.target.querySelector('button[type="submit"]');
+            btn.textContent = '...';
+
+            try {
+                await api.reviews.add(serviceId, { rating, comment });
+                window.ui ? ui.showToast('Review posted! 🎉', 'success') : alert('Review posted! 🎉');
+                reviewModal.classList.add('hidden');
+                reviewForm.reset();
+                fetchServices(); // refresh average rating
+            } catch (err) {
+                window.ui ? ui.showToast('Failed to review: ' + err.message, 'error') : alert('Failed to review');
+            } finally {
+                btn.textContent = 'Submit';
+            }
+        });
+
+        // Init
+        fetchServices();
+    </script>
+    <div id="footer-root"></div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => { 
+            if(window.ui) {
+                ui.renderNavbar('services');
+                ui.renderFooter();
+            }
+        });
+    </script>
+</body>
+</html>
